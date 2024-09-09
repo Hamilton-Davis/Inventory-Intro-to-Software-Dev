@@ -1,5 +1,4 @@
-# Inventory-Intro-to-Software-Dev
-Group project, developing an inventory through python.
+# Inventory Software, Developed in Python
 
 Developed by Students at University of Colorado, Colorado Springs.
 
