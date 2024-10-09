@@ -19,7 +19,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QHeaderView, QPushButton, QSizePolicy,
-    QTableWidget, QTableWidgetItem, QWidget, QMainWindow)
+    QTableWidget, QTableWidgetItem, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -46,13 +46,14 @@ class Ui_Form(object):
         __qtablewidgetitem7 = QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(7, __qtablewidgetitem7)
         self.tableWidget.setObjectName(u"tableWidget")
-        self.tableWidget.setGeometry(QRect(100, 80, 491, 281))
+        self.tableWidget.setGeometry(QRect(50, 80, 561, 281))
         font = QFont()
         font.setFamilies([u"Tahoma"])
-        font.setPointSize(5)
+        font.setPointSize(8)
         font.setBold(True)
         self.tableWidget.setFont(font)
-        self.tableWidget.horizontalHeader().setDefaultSectionSize(60)
+        self.tableWidget.horizontalHeader().setMinimumSectionSize(60)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(70)
         self.saveButton = QPushButton(Form)
         self.saveButton.setObjectName(u"saveButton")
         self.saveButton.setGeometry(QRect(10, 490, 61, 26))
@@ -98,11 +99,11 @@ class Ui_Form(object):
         self.removeItemButton.setText(QCoreApplication.translate("Form", u"Remove Item", None))
     # retranslateUi
 
-
 class MainWindow(QtWidgets.QMainWindow, Ui_Form):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
+
 
 app = QtWidgets.QApplication(sys.argv)
 
