@@ -9,7 +9,7 @@
 ################################################################################
 
 import sys
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtGui
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
@@ -54,6 +54,7 @@ class Ui_Form(object):
         self.tableWidget.setFont(font)
         self.tableWidget.horizontalHeader().setMinimumSectionSize(60)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(70)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.saveButton = QPushButton(Form)
         self.saveButton.setObjectName(u"saveButton")
         self.saveButton.setGeometry(QRect(10, 490, 61, 26))
@@ -76,7 +77,7 @@ class Ui_Form(object):
     # setupUi
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"InventoryScreen", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Name", None));
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
@@ -104,9 +105,68 @@ class MainWindow(QtWidgets.QMainWindow, Ui_Form):
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
+        self.resize_and_center()
 
-app = QtWidgets.QApplication(sys.argv)
 
-window = MainWindow()
-window.show()
-app.exec()
+    def resize_and_center(self):
+        # Define the initial window size
+        window_width = 600
+        window_height = 400
+        self.resize(window_width, window_height)
+
+        # Get the available screen geometry
+        screen_geometry = QtGui.QScreen.availableGeometry(QApplication.primaryScreen())
+
+        # Calculate the top-left corner position to center the window
+        x = (screen_geometry.width() - window_width) // 2
+        y = (screen_geometry.height() - window_height) // 2
+
+        # Move the window to the calculated position
+        self.move(x, y)
+
+    #Event triggered by window resize, adjusts size and position of widgets
+    def resizeEvent(self, event):
+        # Get the current window width and height
+        window_width = self.width()
+        window_height = self.height()
+
+        # Resize and position the table widget dynamically
+        self.tableWidget.setGeometry(QRect(50, 80, window_width - 100, window_height - 300))
+        self.adjustTableHeaderFont()
+
+        # Resize and position the buttons dynamically
+        button_width = 87
+        button_height = 26
+        button_x = window_width - button_width - 30  # Adjust the X position to stay on the right
+        self.addItemButton.setGeometry(QRect(button_x, window_height - 180, button_width, button_height))
+        self.editItemButton.setGeometry(QRect(button_x, window_height - 140, button_width, button_height))
+        self.removeItemButton.setGeometry(QRect(button_x, window_height - 100, button_width, button_height))
+        self.saveButton.setGeometry(QRect(10, window_height - 50, 100, button_height))  # Save button on the bottom-left
+
+        # Call the parent class resizeEvent to ensure proper handling
+        super().resizeEvent(event)
+
+    #Adjusts tableWidget's horizontalHeader font size to fit current header size
+    def adjustTableHeaderFont(self):
+        header = self.tableWidget.horizontalHeader()
+
+        # Iterate over each section (column) in the header
+        for col in range(self.tableWidget.columnCount()):
+            available_width = header.sectionSize(col)
+
+            # Get the current font and start with a larger size
+            font = self.tableWidget.font()
+
+            # Measure the width of the text using QFontMetrics
+            font_metrics = QtGui.QFontMetrics(font)
+            header_text = self.tableWidget.horizontalHeaderItem(col).text()
+            text_width = font_metrics.horizontalAdvance(header_text)
+
+            # Reduce the font size if the text is too wide for the column
+            while text_width > available_width - 10 and font.pointSize() > 5:
+                font.setPointSize(font.pointSize() - 1)
+                font_metrics = QtGui.QFontMetrics(font)
+                text_width = font_metrics.horizontalAdvance(header_text)
+
+            # Set the adjusted font for the header
+            self.tableWidget.horizontalHeaderItem(col).setFont(font)
