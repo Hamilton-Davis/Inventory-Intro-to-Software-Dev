@@ -1,123 +1,63 @@
-import sys
 from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-    QMessageBox,
-    QDialog
+    QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QDialog, QCheckBox
 )
 
-# Dictionary to store user credentials (Replace with text file later or we can fill dictionary on a file read later)
-user_credentials = {}
+# Dictionary store default user credentials for the login system
+user_credentials = {"admin": "password"}  # Default credentials (username: 'admin', password: 'password')
 
 
-class SignupDialog(QDialog):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Signup")
-        self.setGeometry(100, 100, 300, 200)
+# Define LoginWindow class that inherits from QDialog (for login window interface)
+class LoginWindow(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Login System")  # Set title of window
+        self.setGeometry(100, 100, 400, 300)  # Define size and position of login window
 
-        self.layout = QVBoxLayout()
+        self.layout = QVBoxLayout()  # Create a vertical layout to stack widgets
 
-        # Username input
-        self.label_new_username = QLabel("New Username:")
-        self.layout.addWidget(self.label_new_username)
-        self.entry_new_username = QLineEdit()
-        self.layout.addWidget(self.entry_new_username)
+        # Username field setup
+        self.label_username = QLabel("Username:")  # Label for username field
+        self.layout.addWidget(self.label_username)  # Add username label to layout
+        self.entry_username = QLineEdit()  # QLineEdit for user to input username
+        self.layout.addWidget(self.entry_username)  # Add username input field to layout
 
-        # Password input
-        self.label_new_password = QLabel("New Password:")
-        self.layout.addWidget(self.label_new_password)
-        self.entry_new_password = QLineEdit()
-        self.entry_new_password.setEchoMode(QLineEdit.EchoMode.Password)  # Make password hidden
-        self.layout.addWidget(self.entry_new_password)
+        # Password field setup
+        self.label_password = QLabel("Password:")  # Label for password field
+        self.layout.addWidget(self.label_password)  # Add password label to layout
+        self.entry_password = QLineEdit()  # QLineEdit for user to input password
+        self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)  # Set password input to hidden by default
+        self.layout.addWidget(self.entry_password)  # Add password input field to layout
 
-        # Signup button
-        self.signup_button = QPushButton("Create Account")
-        self.signup_button.clicked.connect(self.create_account)
-        self.layout.addWidget(self.signup_button)
+        # Checkbox to toggle password visibility
+        self.show_password_checkbox = QCheckBox("Show Password")  # Checkbox to show/hide the password
+        # Connect checkbox state change to toggle method
+        self.show_password_checkbox.stateChanged.connect(self.toggle_password_visibility)
+        self.layout.addWidget(self.show_password_checkbox)  # Add checkbox to layout
 
-        self.setLayout(self.layout)
+        # Login button setup
+        self.login_button = QPushButton("Login")  # Button for submitting login credentials
+        self.login_button.clicked.connect(self.check_login)  # Connect button click event to check_login method
+        self.layout.addWidget(self.login_button)  # Add login button to layout
 
+        self.setLayout(self.layout)  # Set layout for window
 
-    # Handle signup button click
-    def create_account(self):
-        
-        new_username = self.entry_new_username.text()
-        new_password = self.entry_new_password.text()
-
-        # Check if username already exists
-        if new_username in user_credentials:
-            QMessageBox.warning(self, "Signup Failed", "Username already exists.")
-        else:
-            # Add new username and password to credentials dictionary
-            user_credentials[new_username] = new_password
-            QMessageBox.information(self, "Signup Success", "Account created successfully!")
-            self.accept()  # Close dialog
-
-
-class LoginWindow(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Login System")
-        self.setGeometry(100, 100, 300, 250)
-
-        self.layout = QVBoxLayout()
-
-        # Username input
-        self.label_username = QLabel("Username:")
-        self.layout.addWidget(self.label_username)
-        self.entry_username = QLineEdit()
-        self.layout.addWidget(self.entry_username)
-
-        # Password input
-        self.label_password = QLabel("Password:")
-        self.layout.addWidget(self.label_password)
-        self.entry_password = QLineEdit()
-        self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)  # Make password hidden
-        self.layout.addWidget(self.entry_password)
-
-        # Login button
-        self.login_button = QPushButton("Login")
-        self.login_button.clicked.connect(self.check_login)
-        self.layout.addWidget(self.login_button)
-
-        # Signup button
-        self.signup_button = QPushButton("Signup")
-        self.signup_button.clicked.connect(self.open_signup)  # Connect to static method
-        self.layout.addWidget(self.signup_button)
-
-        self.setLayout(self.layout)
-
-    
-    # Handle login button click
+    # Check for correct username and password
     def check_login(self):
-        username = self.entry_username.text()
-        password = self.entry_password.text()
+        username = self.entry_username.text()  # Get username
+        password = self.entry_password.text()  # Get password
 
-        # Verify username and password against stored credentials (Not saved to text file yet)
+        # Check if username exists and password matches
         if username in user_credentials and user_credentials[username] == password:
-            QMessageBox.information(self, "Login Success", "Welcome!")
-            self.close()  # Close login window on successful login
+            QMessageBox.information(self, "Login Success", "Welcome!")  # Show success message
+            self.accept()  # Close login dialog with success status
         else:
-            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
+            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")  # Show failure message
 
-    
-    # Open signup dialog
-    @staticmethod
-    def open_signup(self):
-        signup_dialog = SignupDialog()
-        signup_dialog.exec()
+    # Toggle visibility of password field based on state of checkbox
+    def toggle_password_visibility(self, state):
 
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    
-    # Create and show main login window
-    login_window = LoginWindow()
-    login_window.show()
-    
-    sys.exit(app.exec())
+        # If checkbox checked, show password
+        if state == 2:  # Qt.Checked is represented by value 2
+            self.entry_password.setEchoMode(QLineEdit.EchoMode.Normal)  # Show password
+        else:
+            self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)  # Hide password (replaces with dots)
