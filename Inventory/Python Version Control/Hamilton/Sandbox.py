@@ -1,41 +1,41 @@
-import pandas as pd
 import datetime
 import xlwt
-import openpyxl
-
-# class Item:
-#    def __init__(self, name, stock, sales, access, order):
- #       self.name = name
-  #      self.stock = stock
-   #     self.sales = sales
-    #    self.access = access
-     #   self.order = order
+import os
+from openpyxl import Workbook as wb
+from openpyxl.reader.excel import load_workbook
 
 
-#item = Item("Pumpkin Spice Candles",
- #           32,
-  #          15,
-   #         True,
-    #        "https://www.etsy.com/listing/1482214698/pumpkin-spice-soy-candle-pumpkin-maple?ga_order=most_relevant&ga_search_type=all&ga_view_type=gallery&ga_search_query=pumpkin+spice+candle&ref=sr_gallery-1-2&frs=1&content_source=839d2fa207add2501003a7398c3a02478c65a35a%253A1482214698&organic_search_click=1")
+folderLocation = "C:\\Users\\mirac\\OneDrive\\Desktop\\Inventory-Intro-to-Software-Dev-main\\Inventory-Intro-to-Software-Dev-main\\Inventory Files\\Excel Sheets\\Excel Sheet"
 
-
-df = pd.DataFrame([[11, 21, 31], [12, 22, 32], [31, 32, 33]],
-                  index=['one', 'two', 'three'], columns=['a', 'b', 'c'])
-
-print(df)
+# Finds Current Date, Allows for File Management
 current_time = datetime.datetime.now()
-print("Year :", current_time.year)
-
-print("Month : ", current_time.month)
-
-print("Day : ", current_time.day)
-month = str(current_time.month)
-day = str(current_time.day),'-'
+month = str(current_time.month) + '-'
+day = str(current_time.day) + '-'
 year = str(current_time.year)
-print(month)
-print(day)
-print(year)
-
 date = month+day+year
-print(date)
-#df.to_excel('pandas_to_excel.xlsx', sheet_name='')
+# print(date)
+
+# Defines file location for new file
+excelName = "Inventory-"+ date + ".xlsx"
+newFileLocation = folderLocation + '\\' + excelName
+print(newFileLocation)
+
+# Default File, It must have this on the file
+for filename in os.listdir(folderLocation):
+    if filename.endswith(".xlsx"):
+        copyPath = os.path.join(folderLocation, filename)
+        print(filename)
+    else:
+        wb = Workbook()
+        ws = wb.active
+        ws['A1'] = "Category"
+        ws['B1'] = "Item"
+        ws['C1'] = "InStock"
+        ws['D1'] = "Purchased"
+        ws['E1'] = "Price"
+        ws['F1'] = "Availability"
+        ws['G1'] = "Link"
+        ws['H1'] = "Entry Date"
+
+
+wb.save(filename)
