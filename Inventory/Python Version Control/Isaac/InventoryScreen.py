@@ -10,7 +10,7 @@ class InventoryScreen(QWidget, Ui_Form):
     def __init__(self):
         super(InventoryScreen, self).__init__()
         self.setupUi(self)
-
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
     # Event triggered by window resize, adjusts size and position of widgets
     def resizeEvent(self, event):
@@ -19,43 +19,29 @@ class InventoryScreen(QWidget, Ui_Form):
         window_height = self.height()
 
         # Resize and position the table widget dynamically
-        self.tableWidget.setGeometry(QRect(50, 80, window_width - 100, window_height - 300))
-        self.adjustTableHeaderFont()
+        self.tableWidget.setGeometry(QRect(10, 60, window_width - 20, window_height - 120))
 
         # Resize and position the buttons dynamically
         button_width = 87
         button_height = 26
-        button_x = window_width - button_width - 30  # Adjust the X position to stay on the right
-        self.addItemButton.setGeometry(QRect(button_x, window_height - 180, button_width, button_height))
-        self.editItemButton.setGeometry(QRect(button_x, window_height - 140, button_width, button_height))
-        self.removeItemButton.setGeometry(QRect(button_x, window_height - 100, button_width, button_height))
-        self.saveButton.setGeometry(QRect(10, window_height - 100, 100, button_height))  # Save button on the bottom-left
+        button_spacing = 10  # Spacing between buttons
+
+        # Button positions
+        button_x_start = window_width - button_width - 10  # Adjust the X position to stay on the right side
+
+        # Set positions for each button
+        # Add, edit, and remove buttons on the bottom-right
+        self.addItemButton.setGeometry(QRect(button_x_start - 200, window_height - 40, button_width, button_height))
+        self.editItemButton.setGeometry(QRect(button_x_start - 100, window_height - 40, button_width, button_height))
+        self.removeItemButton.setGeometry(QRect(button_x_start, window_height - 40, button_width, button_height))
+        self.saveButton.setGeometry(QRect(10, window_height - 40, 71, button_height))  # Save button on the bottom-left
+
+        # Resize and position the search bar and buttons at the top
+        self.searchBar.setGeometry(QRect(230, 20, window_width - 290, button_height))  # Search bar on the top-right
+        self.searchButton.setGeometry(QRect(window_width - 50, 20, 41, button_height))  # Search button on the top-right
+
+        # Home button (fixed size)
+        self.homeButton.setGeometry(QRect(10, 20, 71, button_height))  # Home button on the top-left
 
         # Call the parent class resizeEvent to ensure proper handling
         super().resizeEvent(event)
-
-
-    # Adjusts tableWidget's horizontalHeader font size to fit current header size
-    def adjustTableHeaderFont(self):
-        header = self.tableWidget.horizontalHeader()
-
-        # Iterate over each section (column) in the header
-        for col in range(self.tableWidget.columnCount()):
-            available_width = header.sectionSize(col)
-
-            # Get the current font and start with a larger size
-            font = self.tableWidget.font()
-
-            # Measure the width of the text using QFontMetrics
-            font_metrics = QFontMetrics(font)
-            header_text = self.tableWidget.horizontalHeaderItem(col).text()
-            text_width = font_metrics.horizontalAdvance(header_text)
-
-            # Reduce the font size if the text is too wide for the column
-            while text_width > available_width - 10 and font.pointSize() > 5:
-                font.setPointSize(font.pointSize() - 1)
-                font_metrics = QFontMetrics(font)
-                text_width = font_metrics.horizontalAdvance(header_text)
-
-            # Set the adjusted font for the header
-            self.tableWidget.horizontalHeaderItem(col).setFont(font)
