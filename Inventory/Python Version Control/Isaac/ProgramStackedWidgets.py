@@ -40,21 +40,12 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Create a button that jumps back to the Home Screen
-        self.homeButton = QPushButton("Home")
-        self.homeButton.clicked.connect(self.showHomeScreen)  # Connect to the home screen method
-
-        # Create a QVBoxLayout to hold the button and stacked widget
-        self.mainLayout = QVBoxLayout()
-        self.mainLayout.addWidget(self.homeButton)
-
-
         # Create a QStackedWidget to manage different screens
         self.stackedWidget = QStackedWidget()
 
         # Create screens
-        self.homeScreen = HomeScreen(self.showInventoryScreen, self.showSalesScreen)
-        self.inventoryScreen = InventoryScreen()
+        self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen)
+        self.inventoryScreen = InventoryScreen(self.show_home_screen)
         self.salesScreen = SalesScreen()
 
         # Add screens to the QStackedWidget
@@ -65,18 +56,19 @@ class MainWidget(QWidget):
         # Set the initial screen (Home Screen)
         self.stackedWidget.setCurrentWidget(self.homeScreen)
 
-        # Add the stacked widget to the main layout
+        # Create layout to hold stacked widget
+        self.mainLayout = QVBoxLayout()
         self.mainLayout.addWidget(self.stackedWidget)
         self.setLayout(self.mainLayout)
 
 
-    def showHomeScreen(self):
+    def show_home_screen(self):
         self.stackedWidget.setCurrentWidget(self.homeScreen)
 
-    def showInventoryScreen(self):
+    def show_inventory_screen(self):
         self.stackedWidget.setCurrentWidget(self.inventoryScreen)
 
-    def showSalesScreen(self):
+    def show_sales_screen(self):
         self.stackedWidget.setCurrentWidget(self.salesScreen)
 
 if __name__ == "__main__":

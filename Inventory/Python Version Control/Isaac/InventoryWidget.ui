@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>InventoryWidget</class>
+ <widget class="QWidget" name="InventoryWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -67,7 +67,7 @@
    </column>
    <column>
     <property name="text">
-     <string>Purchase Price</string>
+     <string>Cost</string>
     </property>
    </column>
    <column>
