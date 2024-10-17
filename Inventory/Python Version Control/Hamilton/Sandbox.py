@@ -41,8 +41,12 @@ newFileLocation = folderLocation / excelName
 
 print(newFileLocation)
 
+wb = load_workbook(get_newest_file(folderLocation)) # Loads most recent Excel sheet into workbook
+sheet = wb.active # Active sheet in workbook (IDK if this part is necessary)
+for row in sheet.iter_rows(values_only=True):
+    print(row)
 
-# Default File, It must have this on the file
+"""# Default File, It must have this on the file
 for filename in Path.iterdir(folderLocation):
     if filename.suffix == ".xlsx":
         copyPath = folderLocation / filename
@@ -58,7 +62,6 @@ for filename in Path.iterdir(folderLocation):
         ws['F1'] = "Availability"
         ws['G1'] = "Link"
         ws['H1'] = "Entry Date"
-
-
+"""
 #wb.save(filename) # This saves file to current directory of script file, not to newFileLocation
 wb.save(newFileLocation)
