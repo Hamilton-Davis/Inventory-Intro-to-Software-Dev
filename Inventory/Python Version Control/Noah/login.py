@@ -1,63 +1,81 @@
-from PySide6.QtWidgets import (
-    QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QDialog, QCheckBox
-)
+from PySide6.QtWidgets import QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QWidget, QCheckBox, QSpacerItem, QSizePolicy
+from PySide6.QtCore import Signal, Qt
 
-# Dictionary store default user credentials for the login system
-user_credentials = {"admin": "password"}  # Default credentials (username: 'admin', password: 'password')
+# Default credentials for login
+user_credentials = {"admin": "password"}
 
 
-# Define LoginWindow class that inherits from QDialog (for login window interface)
-class LoginWindow(QDialog):
+class LoginWindow(QWidget):
+    # Signal emitted when login is successful
+    login_success = Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Login System")  # Set title of window
-        self.setGeometry(100, 100, 400, 300)  # Define size and position of login window
+        self.setWindowTitle("Login System")  # Set window title
+        self.setGeometry(100, 100, 400, 300)  # Set window size and position
 
-        self.layout = QVBoxLayout()  # Create a vertical layout to stack widgets
+        # Main layout (vertical) to organize widgets
+        self.layout = QVBoxLayout(self)
+        # Align entire layout to center (horizontally and vertically)
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Username field setup
-        self.label_username = QLabel("Username:")  # Label for username field
+        # Add spacer at top to center the elements vertically
+        self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        # Add title label for "Login"
+        self.title_label = QLabel("Login", self)
+        self.title_label.setStyleSheet("font-size: 64px; font-weight: bold;")  # Set font and bold style for title
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center title label horizontally
+        self.layout.addWidget(self.title_label)  # Add title label to layout
+
+        # Username label and input field
+        self.label_username = QLabel("Username:", self)
         self.layout.addWidget(self.label_username)  # Add username label to layout
-        self.entry_username = QLineEdit()  # QLineEdit for user to input username
+        self.entry_username = QLineEdit(self)  # Create QLineEdit for username input
+        self.entry_username.setFixedSize(300, 50)  # Set fixed size for username input field
         self.layout.addWidget(self.entry_username)  # Add username input field to layout
 
-        # Password field setup
-        self.label_password = QLabel("Password:")  # Label for password field
+        # Password label and input field
+        self.label_password = QLabel("Password:", self)
         self.layout.addWidget(self.label_password)  # Add password label to layout
-        self.entry_password = QLineEdit()  # QLineEdit for user to input password
-        self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)  # Set password input to hidden by default
+        self.entry_password = QLineEdit(self)  # Create QLineEdit for password input
+        # Set password field to hide input using echo mode
+        self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.entry_password.setFixedSize(300, 50)  # Set fixed size for password input field
         self.layout.addWidget(self.entry_password)  # Add password input field to layout
 
-        # Checkbox to toggle password visibility
-        self.show_password_checkbox = QCheckBox("Show Password")  # Checkbox to show/hide the password
-        # Connect checkbox state change to toggle method
+        # Checkbox to show or hide password
+        self.show_password_checkbox = QCheckBox("Show Password", self)
+        # Connect checkbox state to toggle_password_visibility method
         self.show_password_checkbox.stateChanged.connect(self.toggle_password_visibility)
         self.layout.addWidget(self.show_password_checkbox)  # Add checkbox to layout
 
-        # Login button setup
-        self.login_button = QPushButton("Login")  # Button for submitting login credentials
-        self.login_button.clicked.connect(self.check_login)  # Connect button click event to check_login method
+        # Login button
+        self.login_button = QPushButton("Login", self)
+        self.login_button.setFixedSize(200, 40)  # Set fixed size for login button
         self.layout.addWidget(self.login_button)  # Add login button to layout
+        self.login_button.clicked.connect(self.check_login)  # Connect login button's click event to check_login method
 
-        self.setLayout(self.layout)  # Set layout for window
+        # Add spacer at bottom to help center elements vertically
+        self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-    # Check for correct username and password
+    # Check login credentials
     def check_login(self):
-        username = self.entry_username.text()  # Get username
-        password = self.entry_password.text()  # Get password
+        username = self.entry_username.text()  # Get username input
+        password = self.entry_password.text()  # Get password input
 
-        # Check if username exists and password matches
+        # Check if entered username and password match default credentials
         if username in user_credentials and user_credentials[username] == password:
-            QMessageBox.information(self, "Login Success", "Welcome!")  # Show success message
-            self.accept()  # Close login dialog with success status
+            # If login is successful, show success message
+            QMessageBox.information(self, "Login Success", "Welcome!")
+            self.login_success.emit()  # Signal for successful login
         else:
-            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")  # Show failure message
+            # If login fails, show error message
+            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
 
-    # Toggle visibility of password field based on state of checkbox
+    # Toggle password visibility (checkbox)
     def toggle_password_visibility(self, state):
-
-        # If checkbox checked, show password
-        if state == 2:  # Qt.Checked is represented by value 2
-            self.entry_password.setEchoMode(QLineEdit.EchoMode.Normal)  # Show password
+        if state == 2:  # If checkbox is checked, show password
+            self.entry_password.setEchoMode(QLineEdit.EchoMode.Normal)
         else:
-            self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)  # Hide password (replaces with dots)
+            self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)
