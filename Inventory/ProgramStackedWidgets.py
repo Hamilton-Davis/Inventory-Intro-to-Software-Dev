@@ -3,6 +3,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel
 
 from InventoryScreen import InventoryScreen
+from ui import CentralWidget
 
 
 # Home Screen Class
@@ -45,7 +46,8 @@ class MainWidget(QWidget):
         self.setWindowTitle("Inventory Program")
 
         # Create screens
-        self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen)
+        #self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen)
+        self.homeScreen = CentralWidget(self.show_inventory_screen, self.show_sales_screen, self.show_settings_screen)
         self.inventoryScreen = InventoryScreen(self.show_home_screen)
         self.salesScreen = SalesScreen()
 
@@ -57,8 +59,12 @@ class MainWidget(QWidget):
         # Set the initial screen (Home Screen)
         self.stackedWidget.setCurrentWidget(self.homeScreen)
 
+        # Add constant home button at top
+        homeButton = QPushButton("Go to Home")
+        homeButton.clicked.connect(self.show_home_screen)
         # Create layout to hold stacked widget
         self.mainLayout = QVBoxLayout()
+        self.mainLayout.addWidget(homeButton)
         self.mainLayout.addWidget(self.stackedWidget)
         self.setLayout(self.mainLayout)
 
@@ -71,6 +77,9 @@ class MainWidget(QWidget):
 
     def show_sales_screen(self):
         self.stackedWidget.setCurrentWidget(self.salesScreen)
+
+    def show_settings_screen(self):
+        pass
 
 
 if __name__ == "__main__":
