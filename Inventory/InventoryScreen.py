@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, QPushButton, QHeaderView, QWidget, QTableWidgetItem
-from PySide6.QtCore import QRect, Qt, Signal
+from PySide6.QtCore import QRect, Qt
+from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem
+
 from InventoryWidgetDesigner import Ui_InventoryWidget
 
 

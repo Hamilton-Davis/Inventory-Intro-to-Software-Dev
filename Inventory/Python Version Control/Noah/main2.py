@@ -1,7 +1,9 @@
 import sys
+
 from PySide6.QtWidgets import QApplication, QMainWindow
-from ui import CentralWidget  # Import CentralWidget from ui.py
-from login import LoginWindow  # Import LoginWindow from login.py
+
+from Inventory.login import LoginWindow  # Import LoginWindow from login.py
+from Inventory.ui import CentralWidget  # Import CentralWidget from ui.py
 
 
 class MainWindow(QMainWindow):
