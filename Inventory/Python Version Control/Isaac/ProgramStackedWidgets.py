@@ -3,7 +3,9 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, Q
 from PySide6.QtCore import QRect
 from PySide6.QtGui import QFontMetrics
 from InventoryScreen import InventoryScreen
-
+from pathlib import Path
+#Get files from Noah's folder
+sys.path.append((Path(__file__).parent.parent.resolve() / 'Noah').resolve().__str__())
 
 # Home Screen Class
 class HomeScreen(QWidget):
@@ -42,6 +44,7 @@ class MainWidget(QWidget):
 
         # Create a QStackedWidget to manage different screens
         self.stackedWidget = QStackedWidget()
+        self.setWindowTitle("Inventory Program")
 
         # Create screens
         self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen)
@@ -71,6 +74,7 @@ class MainWidget(QWidget):
     def show_sales_screen(self):
         self.stackedWidget.setCurrentWidget(self.salesScreen)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -78,4 +82,4 @@ if __name__ == "__main__":
     mainWidget.resize(800, 600)
     mainWidget.show()
 
-    app.exec()
+    sys.exit(app.exec())

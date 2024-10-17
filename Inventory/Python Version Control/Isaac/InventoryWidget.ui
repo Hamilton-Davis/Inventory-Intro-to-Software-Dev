@@ -14,6 +14,9 @@
    <string>Form</string>
   </property>
   <widget class="QTableWidget" name="tableWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -28,6 +31,12 @@
      <pointsize>8</pointsize>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="editTriggers">
+    <set>QAbstractItemView::EditTrigger::AnyKeyPressed|QAbstractItemView::EditTrigger::DoubleClicked|QAbstractItemView::EditTrigger::EditKeyPressed</set>
+   </property>
+   <property name="sortingEnabled">
+    <bool>true</bool>
    </property>
    <attribute name="horizontalHeaderCascadingSectionResizes">
     <bool>true</bool>
@@ -136,7 +145,7 @@
     <string>Edit</string>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::UserAvailable"/>
+    <iconset theme="QIcon::ThemeIcon::EditRedo"/>
    </property>
   </widget>
   <widget class="QPushButton" name="removeItemButton">
