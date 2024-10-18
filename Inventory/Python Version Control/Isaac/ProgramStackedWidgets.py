@@ -49,12 +49,17 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
+        # Constant home button at top of screen (remove this when all screens are finalized)
+        self.homeButton = QPushButton("Go to Home", self)
+        self.homeButton.clicked.connect(self.show_home_screen)
+
         # Create a QStackedWidget to manage different screens
         self.stackedWidget = QStackedWidget()
         self.setWindowTitle("Inventory Program")
 
         # Create layout to hold stacked widget
         self.mainLayout = QVBoxLayout()
+        self.mainLayout.addWidget(self.homeButton) # Remove this when all screens are finalized
         self.mainLayout.addWidget(self.stackedWidget)
         self.setLayout(self.mainLayout)
 
