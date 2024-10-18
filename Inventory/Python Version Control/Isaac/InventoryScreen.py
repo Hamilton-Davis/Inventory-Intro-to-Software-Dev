@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, QPushButton, QHeaderView, QWidget, QTableWidgetItem
 from PySide6.QtCore import QRect, Qt, Signal
+from PySide6.QtGui import QBrush, QColor
 from InventoryWidgetDesigner import Ui_InventoryWidget
-
+import PopupMessages
 
 # Screen user sees when viewing/making changes to inventory
 class InventoryScreen(QWidget, Ui_InventoryWidget):
@@ -25,32 +26,52 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         for row in range(self.tableWidget.rowCount()):
             for column in range(self.tableWidget.columnCount()):
                 item = self.tableWidget.item(row, column)
+                if item is None:  # If the cell is blank, create a new item
+                    item = QTableWidgetItem("")
+                    self.tableWidget.setItem(row, column, item)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable) # Removes editable flag from item (row, column)
 
     # Enables editing of selected row in table
     def enable_table_row_editing(self, row):
         for column in range(self.tableWidget.columnCount()):
             item = self.tableWidget.item(row, column)
+            if item is None:  # If the cell is blank, create a new item
+                item = QTableWidgetItem("")
+                self.tableWidget.setItem(row, column, item)
             item.setFlags(item.flags() | Qt.ItemIsEditable) # Adds editable flag to item (row, column)
+            item.setBackground(QBrush(QColor("light blue"))) # Mark edited row with blue
 
     # Adds new row to table and enables editing of row
     def add_table_row(self):
+        # Create new row
         row_count = self.tableWidget.rowCount()
         self.tableWidget.insertRow(row_count)
-        newItem = QTableWidgetItem("New Item")
-        self.tableWidget.setItem(row_count, 0, newItem)
+
+        # Create first cell
+        item = QTableWidgetItem("New Item")
+        self.tableWidget.setItem(row_count, 0, item)
+        item.setBackground(QBrush(QColor("light green"))) # Mark added row with green
+
+        # Fill remaining cells with blank spaces
+        for column in range(1, self.tableWidget.columnCount()):
+            item = QTableWidgetItem("")
+            self.tableWidget.setItem(row_count, column, item)
+            item.setBackground(QBrush(QColor("light green"))) # Mark added row with green
 
     # Removes selected row from table
     def remove_table_row(self, row):
         self.tableWidget.removeRow(row)
 
-    # Enables current row when user clicks editItemButton
+    # Enables editing of selected rows when user clicks editItemButton
     def editItemButton_clicked(self):
-        self.enable_table_row_editing(self.tableWidget.currentRow())
+        for index in self.tableWidget.selectedIndexes():
+            self.enable_table_row_editing(index.row())
 
-    # Removes current row when user clicks removeItemButton
+    # Removes selected rows when user clicks removeItemButton
     def removeItemButton_clicked(self):
-        self.remove_table_row(self.tableWidget.currentRow())
+        if PopupMessages.delete_confirmation_dialog():
+            for index in self.tableWidget.selectedIndexes():
+                self.remove_table_row(index.row())
 
     # Event triggered by window resize, adjusts size and position of widgets
     def resizeEvent(self, event):
