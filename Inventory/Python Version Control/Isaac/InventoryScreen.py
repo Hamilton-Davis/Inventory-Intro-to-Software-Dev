@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem
+from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QBrush, QColor
 from InventoryWidgetDesigner import Ui_InventoryWidget
@@ -29,6 +29,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.import_table()
         self.disable_table_editing()
+        self.tableWidget.setSelectionBehavior(QTableWidget.SelectRows)
 
     # Disables editing of all rows and columns in table
     def disable_table_editing(self):
@@ -86,8 +87,11 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
     # Removes selected rows when user clicks removeItemButton
     def removeItemButton_clicked(self):
         if popups.delete_confirmation_dialog():
-            for index in self.tableWidget.selectedIndexes():
-                self.remove_table_row(index.row())
+            #Get row indexes in reverse order to avoid changing indexes as rows are removed
+            selected_rows = sorted(set(index.row() for index in self.tableWidget.selectedIndexes()), reverse=True)
+
+            for row in selected_rows:
+                self.remove_table_row(row)
 
     # Saves table widget's data to a .xlsx file
     def saveButton_clicked(self):
