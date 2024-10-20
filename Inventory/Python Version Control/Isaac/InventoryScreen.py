@@ -18,9 +18,16 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.saveButton.clicked.connect(self.saveButton_clicked)
         self.homeButton.clicked.connect(switch_to_home) # Determines action by slot passed in constructor
 
+    # Imports data from an existing table into tableWidget
+    def import_table(self):
+        table = tablereader.import_workbook()
+        for row in table[1]:
+            self.add_table_row(row)
+
     # Set table in default state
     def setup_table(self):
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.import_table()
         self.disable_table_editing()
 
     # Disables editing of all rows and columns in table
@@ -44,21 +51,28 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
             item.setBackground(QBrush(QColor("light blue"))) # Mark edited row with blue
 
     # Adds new row to table and enables editing of row
-    def add_table_row(self):
+    # row_data is an optional parameter to set values of row
+    def add_table_row(self, row_data=None):
         # Create new row
         row_count = self.tableWidget.rowCount()
         self.tableWidget.insertRow(row_count)
 
-        # Create first cell
-        item = QTableWidgetItem("New Item")
-        self.tableWidget.setItem(row_count, 0, item)
-        item.setBackground(QBrush(QColor("light green"))) # Mark added row with green
+        # If row_data is provided, use its values; otherwise, default to "New Item" and blank spaces
+        for column in range(self.tableWidget.columnCount()):
+            # Determine the item value based on row_data or defaults
+            isImport = False
+            if row_data and column < len(row_data):
+                isImport = True
+                item_data = row_data[column]  # Use value from row_data if available
+                if isinstance(item_data, (int, float)): # Convert numbers to strings
+                    item_data = str(item_data)
+            else:
+                item_data = "New Item" if column == 0 else ""  # Default values
 
-        # Fill remaining cells with blank spaces
-        for column in range(1, self.tableWidget.columnCount()):
-            item = QTableWidgetItem("")
+            # Add item to table
+            item = QTableWidgetItem(item_data)
             self.tableWidget.setItem(row_count, column, item)
-            item.setBackground(QBrush(QColor("light green"))) # Mark added row with green
+            if not isImport: item.setBackground(QBrush(QColor("light green"))) # Mark empty added row with green
 
     # Removes selected row from table
     def remove_table_row(self, row):
