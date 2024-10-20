@@ -1,7 +1,5 @@
 import sys
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel, QHBoxLayout, QTableWidget, QTableWidgetItem, QMainWindow
-from PySide6.QtCore import QRect
-from PySide6.QtGui import QFontMetrics
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel
 from InventoryScreen import InventoryScreen
 from pathlib import Path
 sys.path.append((Path(__file__).parent.parent.resolve() / 'Noah').resolve().__str__()) #Get files from Noah's folder

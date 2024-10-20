@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, QPushButton, QHeaderView, QWidget, QTableWidgetItem
-from PySide6.QtCore import QRect, Qt, Signal
+from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem
+from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QBrush, QColor
 from InventoryWidgetDesigner import Ui_InventoryWidget
-import PopupMessages
+import popups
+import tablereader
 
 # Screen user sees when viewing/making changes to inventory
 class InventoryScreen(QWidget, Ui_InventoryWidget):
@@ -14,6 +15,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.addItemButton.clicked.connect(self.add_table_row)
         self.editItemButton.clicked.connect(self.editItemButton_clicked)
         self.removeItemButton.clicked.connect(self.removeItemButton_clicked)
+        self.saveButton.clicked.connect(self.saveButton_clicked)
         self.homeButton.clicked.connect(switch_to_home) # Determines action by slot passed in constructor
 
     # Set table in default state
@@ -69,9 +71,19 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
     # Removes selected rows when user clicks removeItemButton
     def removeItemButton_clicked(self):
-        if PopupMessages.delete_confirmation_dialog():
+        if popups.delete_confirmation_dialog():
             for index in self.tableWidget.selectedIndexes():
                 self.remove_table_row(index.row())
+
+    # Saves table widget's data to a .xlsx file
+    def saveButton_clicked(self):
+        wb = tablereader.export_table(self.tableWidget)
+
+        ws = wb.active
+        for row in ws.iter_rows(values_only=True):
+            print(row)
+
+        # ADD FUNCTION TO WRITE WORKBOOK TO FILE HERE
 
     # Event triggered by window resize, adjusts size and position of widgets
     def resizeEvent(self, event):
