@@ -172,7 +172,7 @@
   <widget class="QLineEdit" name="searchBar">
    <property name="geometry">
     <rect>
-     <x>370</x>
+     <x>420</x>
      <y>20</y>
      <width>401</width>
      <height>26</height>
@@ -185,22 +185,6 @@
    </property>
    <property name="placeholderText">
     <string>Search Item</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="searchButton">
-   <property name="geometry">
-    <rect>
-     <x>780</x>
-     <y>20</y>
-     <width>41</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string extracomment="Search"/>
-   </property>
-   <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditFind"/>
    </property>
   </widget>
   <widget class="QPushButton" name="homeButton">
