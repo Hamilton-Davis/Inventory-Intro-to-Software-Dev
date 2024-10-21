@@ -23,8 +23,8 @@ class LoginWindow(QWidget):
         self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         # Add title label for "Login"
-        self.title_label = QLabel("Login", self)
-        self.title_label.setStyleSheet("font-size: 64px; font-weight: bold;")  # Set font and bold style for title
+        self.title_label = QLabel("Sign in", self)
+        self.title_label.setStyleSheet("font-size: 32px; font-weight: bold;")  # Set font and bold style for title
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center title label horizontally
         self.layout.addWidget(self.title_label)  # Add title label to layout
 
@@ -56,6 +56,10 @@ class LoginWindow(QWidget):
         self.layout.addWidget(self.login_button)  # Add login button to layout
         self.login_button.clicked.connect(self.check_login)  # Connect login button's click event to check_login method
 
+        # Connect Enter/Return key to trigger login
+        self.entry_username.returnPressed.connect(self.check_login)  # Pressing enter on username triggers login
+        self.entry_password.returnPressed.connect(self.check_login)  # Pressing enter on password triggers login
+
         # Add spacer at bottom to help center elements vertically
         self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
@@ -64,14 +68,37 @@ class LoginWindow(QWidget):
         username = self.entry_username.text()  # Get username input
         password = self.entry_password.text()  # Get password input
 
+        # Create QMessageBox object for customization
+        message_box = QMessageBox(self)
+        message_box.setStyleSheet("QLabel{font-size: 14px;}")  # Set smaller font for message box
+
         # Check if entered username and password match default credentials
         if username in user_credentials and user_credentials[username] == password:
             # If login is successful, show success message
-            QMessageBox.information(self, "Login Success", "Welcome!")
+            message_box.setIcon(QMessageBox.Information)
+            message_box.setWindowTitle("Login Success")
+            message_box.setText("Welcome!")
+            message_box.setFixedSize(300, 150)  # Set smaller fixed size for message box
+            message_box.exec()
+
+            # Disable input fields, checkbox, and login button
+            self.entry_username.setDisabled(True)
+            self.entry_password.setDisabled(True)
+            self.login_button.setDisabled(True)
+            self.show_password_checkbox.setDisabled(True)
+
+            # Disconnect returnPressed signal to prevent further login attempts with "Enter"
+            self.entry_username.returnPressed.disconnect(self.check_login)
+            self.entry_password.returnPressed.disconnect(self.check_login)
+
             self.login_success.emit()  # Signal for successful login
         else:
             # If login fails, show error message
-            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
+            message_box.setIcon(QMessageBox.Warning)
+            message_box.setWindowTitle("Login Failed")
+            message_box.setText("Invalid username or password.")
+            message_box.setFixedSize(300, 150)  # Set a smaller fixed size for the message box
+            message_box.exec()
 
     # Toggle password visibility (checkbox)
     def toggle_password_visibility(self, state):

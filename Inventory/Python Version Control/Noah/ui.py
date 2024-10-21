@@ -1,81 +1,99 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
+from settings import SettingsWidget  # Import settings screen
 
 
-# CentralWidget class for main menu screen
 class CentralWidget(QWidget):
     def __init__(self, parent, exit_callback):
-        super().__init__(parent)
-        self.exit_callback = exit_callback  # Callback function for exit button
-        self.init_ui()  # Initialize UI elements
+        super().__init__(parent)  # Initialize parent QWidget
+        # Initialize button references and layout containers
+        self.button1 = None
+        self.button2 = None
+        self.button3 = None
+        self.button4 = None
+        self.exit_button_layout = None
+        self.button_layout = None
+        self.main_layout = None
+        self.title_label = None
+        self.exit_callback = exit_callback  # Callback for exit button
+        self.settings_widget = None  # Initialize settings widget reference
+        self.init_ui()  # Call UI setup method
 
     def init_ui(self):
-        # Clear any existing widgets before adding new ones
-        self.clear()
+        # Create main vertical layout for widget
+        self.main_layout = QVBoxLayout(self)
 
-        # Create main vertical layout that will hold all elements
-        main_layout = QVBoxLayout(self)
+        # Create and configure title label
+        self.title_label = QLabel("Inventory Management", self)
+        self.title_label.setFont(QFont("Arial", 60))  # Set font and size
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center align text
+        self.main_layout.addWidget(self.title_label)  # Add title label to layout
 
-        # Title Label at the top (centered)
-        title_label = QLabel("Inventory Management", self)  # Create title label
-        title_label.setFont(QFont("Arial", 60))  # Set font style and size
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center label horizontally in layout
-        main_layout.addWidget(title_label)  # Add title label to main layout
+        # Add spacer to push buttons down
+        self.main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # Spacer to add space between title and buttons
-        main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        # Create horizontal layout for buttons
+        self.button_layout = QHBoxLayout()
 
-        # Create horizontal layout to organize buttons in row
-        button_layout = QHBoxLayout()
-
-        # Inventory button
-        button1 = QPushButton("Check Inventory", self)  # Create "Check Inventory" button
-        button1.setFixedSize(150, 150)  # Set fixed size for button
+        # Initialize and configure buttons
+        self.button1 = QPushButton("Check Inventory", self)
+        self.button1.setFixedSize(200, 150)  # Set button size
         # Connect button click to message action (prints message to console)
-        button1.clicked.connect(lambda: CentralWidget.message_action("Checking Inventory..."))
-        button_layout.addWidget(button1)  # Add button to horizontal layout
+        self.button1.clicked.connect(lambda: CentralWidget.message_action("Checking Inventory..."))
+        self.button_layout.addWidget(self.button1)  # Add button to layout
 
-        # Sales Analysis button
-        button2 = QPushButton("Sales Analysis", self)
-        button2.setFixedSize(150, 150)
-        button2.clicked.connect(lambda: CentralWidget.message_action("Performing Sales Analysis..."))
-        button_layout.addWidget(button2)
+        self.button2 = QPushButton("Sales Analysis", self)
+        self.button2.setFixedSize(200, 150)
+        self.button2.clicked.connect(lambda: CentralWidget.message_action("Performing Sales Analysis..."))
+        self.button_layout.addWidget(self.button2)
 
-        # Settings button
-        button3 = QPushButton("Settings", self)
-        button3.setFixedSize(150, 150)
-        button3.clicked.connect(lambda: CentralWidget.message_action("Editing Settings..."))
-        button_layout.addWidget(button3)
+        self.button3 = QPushButton("Settings", self)
+        self.button3.setFixedSize(200, 150)
+        self.button3.clicked.connect(self.show_settings)  # Connect to show settings screen
+        self.button_layout.addWidget(self.button3)
 
-        # Add horizontal button layout to main vertical layout
-        main_layout.addLayout(button_layout)
+        # Add button layout to main layout
+        self.main_layout.addLayout(self.button_layout)
 
-        # Spacer to add space below buttons (centers buttons vertically)
-        main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        # Add spacer to push exit button down
+        self.main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # Layout for exit button, positioned at bottom right
-        exit_button_layout = QHBoxLayout()
-        # Add spacer to push exit button to right
-        exit_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        # Create layout for the exit button
+        self.exit_button_layout = QHBoxLayout()
+        self.exit_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))  # Add left spacer
+        self.button4 = QPushButton("Exit", self)  # Create exit button
+        self.button4.setFixedSize(75, 75)  # Set button size
+        self.button4.clicked.connect(self.exit_callback)  # Connect exit button to callback
+        self.exit_button_layout.addWidget(self.button4)  # Add button to exit layout
 
-        # Exit button
-        button4 = QPushButton("Exit", self)
-        button4.setFixedSize(75, 75)
-        button4.clicked.connect(self.exit_callback)
-        exit_button_layout.addWidget(button4)
+        # Add exit button layout to main layout
+        self.main_layout.addLayout(self.exit_button_layout)
 
-        # Add exit button layout to main vertical layout
-        main_layout.addLayout(exit_button_layout)
+    def show_settings(self):
+        # Hide all main menu widgets (title and buttons)
+        self.title_label.hide()
+        self.button1.hide()
+        self.button2.hide()
+        self.button3.hide()
+        self.button4.hide()
 
-        # Set main layout as layout for this widget
-        self.setLayout(main_layout)
+        # Create and display settings widget
+        if not self.settings_widget:
+            self.settings_widget = SettingsWidget(self, self.back_to_main_menu)  # Pass callback to return to main menu
+            self.main_layout.addWidget(self.settings_widget)  # Add settings widget to layout
 
-    # Clears all existing widgets in layout
-    def clear(self):
-        # Delete all child widgets to ensure a fresh UI
-        for child in self.children():
-            child.deleteLater()
+        self.settings_widget.show()  # Show settings widget
+
+
+    def back_to_main_menu(self):
+        # Hide settings widget and show main menu widgets (title and buttons)
+        self.settings_widget.hide()
+        self.title_label.show()  # Show title label
+        self.button1.show()  # Show first button
+        self.button2.show()  # Show second button
+        self.button3.show()  # Show settings button
+        self.button4.show()  # Show exit button
 
     @staticmethod  # Indicates this method not dependent on instance state
     # Function to handle button click actions by printing a message
