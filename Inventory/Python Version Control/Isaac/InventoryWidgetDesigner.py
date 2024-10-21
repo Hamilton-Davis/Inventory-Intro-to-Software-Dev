@@ -1,23 +1,17 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'InventoryWidgetZNmEkY.ui'
+## Form generated from reading UI file 'InventoryWidget.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHeaderView, QLineEdit,
-    QPushButton, QSizePolicy, QTableWidget, QTableWidgetItem,
-    QWidget)
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect)
+from PySide6.QtGui import (QFont, QIcon)
+from PySide6.QtWidgets import (QAbstractItemView, QLineEdit,
+                               QPushButton, QTableWidget, QTableWidgetItem)
 
 class Ui_InventoryWidget(object):
     def setupUi(self, InventoryWidget):
@@ -85,20 +79,15 @@ class Ui_InventoryWidget(object):
         self.removeItemButton.setIcon(icon3)
         self.searchBar = QLineEdit(InventoryWidget)
         self.searchBar.setObjectName(u"searchBar")
-        self.searchBar.setGeometry(QRect(370, 20, 401, 26))
+        self.searchBar.setGeometry(QRect(420, 20, 401, 26))
         font2 = QFont()
         font2.setItalic(True)
         self.searchBar.setFont(font2)
-        self.searchButton = QPushButton(InventoryWidget)
-        self.searchButton.setObjectName(u"searchButton")
-        self.searchButton.setGeometry(QRect(780, 20, 41, 26))
-        icon4 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.EditFind))
-        self.searchButton.setIcon(icon4)
         self.homeButton = QPushButton(InventoryWidget)
         self.homeButton.setObjectName(u"homeButton")
         self.homeButton.setGeometry(QRect(10, 20, 71, 26))
-        icon5 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.GoHome))
-        self.homeButton.setIcon(icon5)
+        icon4 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.GoHome))
+        self.homeButton.setIcon(icon4)
 
         self.retranslateUi(InventoryWidget)
 
@@ -128,7 +117,5 @@ class Ui_InventoryWidget(object):
         self.editItemButton.setText(QCoreApplication.translate("InventoryWidget", u"Edit", None))
         self.removeItemButton.setText(QCoreApplication.translate("InventoryWidget", u"Remove", None))
         self.searchBar.setPlaceholderText(QCoreApplication.translate("InventoryWidget", u"Search Item", None))
-        self.searchButton.setText("")
         self.homeButton.setText(QCoreApplication.translate("InventoryWidget", u"Home", None))
     # retranslateUi
-

@@ -48,3 +48,4 @@ if __name__ == "__main__":
 
     # Execute application event loop
     sys.exit(app.exec())
+

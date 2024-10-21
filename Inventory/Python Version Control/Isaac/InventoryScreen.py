@@ -1,5 +1,9 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, QPushButton, QHeaderView, QWidget, QTableWidgetItem
-from PySide6.QtCore import QRect, Qt, Signal
+from PySide6.QtCore import QRect, Qt
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget
+
+import popups
+import tablereader
 from InventoryWidgetDesigner import Ui_InventoryWidget
 
 
@@ -7,50 +11,153 @@ from InventoryWidgetDesigner import Ui_InventoryWidget
 class InventoryScreen(QWidget, Ui_InventoryWidget):
 
     def __init__(self, switch_to_home):
+        # Init ui
         super(InventoryScreen, self).__init__()
         self.setupUi(self)
         self.setup_table()
+        self.searchBar.textChanged.connect(self.searchBar_textChanged)
+
+        # Connect buttons
         self.addItemButton.clicked.connect(self.add_table_row)
         self.editItemButton.clicked.connect(self.editItemButton_clicked)
         self.removeItemButton.clicked.connect(self.removeItemButton_clicked)
+        self.saveButton.clicked.connect(self.saveButton_clicked)
         self.homeButton.clicked.connect(switch_to_home) # Determines action by slot passed in constructor
+
+    # Imports data from an existing table into tableWidget
+    def import_table(self):
+        table = tablereader.import_workbook()
+        for row in table[1]:
+            self.add_table_row(row)
+
 
     # Set table in default state
     def setup_table(self):
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Import table data
+        self.import_table()
         self.disable_table_editing()
+
+        # Set table formatting
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidget.setSelectionBehavior(QTableWidget.SelectRows)
+
 
     # Disables editing of all rows and columns in table
     def disable_table_editing(self):
         for row in range(self.tableWidget.rowCount()):
             for column in range(self.tableWidget.columnCount()):
                 item = self.tableWidget.item(row, column)
+                if item is None:  # If the cell is blank, create a new item
+                    item = QTableWidgetItem("")
+                    self.tableWidget.setItem(row, column, item)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable) # Removes editable flag from item (row, column)
+
 
     # Enables editing of selected row in table
     def enable_table_row_editing(self, row):
         for column in range(self.tableWidget.columnCount()):
             item = self.tableWidget.item(row, column)
+            if item is None:  # If the cell is blank, create a new item
+                item = QTableWidgetItem("")
+                self.tableWidget.setItem(row, column, item)
             item.setFlags(item.flags() | Qt.ItemIsEditable) # Adds editable flag to item (row, column)
+            item.setBackground(QColor("light blue")) # Mark edited row with blue
+
 
     # Adds new row to table and enables editing of row
-    def add_table_row(self):
+    # row_data is an optional parameter to set values of row
+    def add_table_row(self, row_data=None):
+        # Create new row
         row_count = self.tableWidget.rowCount()
         self.tableWidget.insertRow(row_count)
-        newItem = QTableWidgetItem("New Item")
-        self.tableWidget.setItem(row_count, 0, newItem)
+
+        # If row_data is provided, use its values; otherwise, default to "New Item" and blank spaces
+        for column in range(self.tableWidget.columnCount()):
+            # Determine the item value based on row_data or defaults
+            isImport = False
+            if row_data and column < len(row_data):
+                isImport = True
+                item_data = row_data[column]  # Use value from row_data if available
+                if isinstance(item_data, (int, float)): # Convert numbers to strings
+                    item_data = str(item_data)
+            else:
+                item_data = "New Item" if column == 0 else ""  # Default values
+
+            # Add item to table
+            item = QTableWidgetItem(item_data)
+            self.tableWidget.setItem(row_count, column, item)
+            if not isImport: item.setBackground(QColor("light green")) # Mark empty added row with green
+
 
     # Removes selected row from table
     def remove_table_row(self, row):
         self.tableWidget.removeRow(row)
 
-    # Enables current row when user clicks editItemButton
-    def editItemButton_clicked(self):
-        self.enable_table_row_editing(self.tableWidget.currentRow())
 
-    # Removes current row when user clicks removeItemButton
+    # Enables editing of selected rows when user clicks editItemButton
+    def editItemButton_clicked(self):
+        for index in self.tableWidget.selectedIndexes():
+            self.enable_table_row_editing(index.row())
+
+
+    # Removes selected rows when user clicks removeItemButton
     def removeItemButton_clicked(self):
-        self.remove_table_row(self.tableWidget.currentRow())
+        if popups.delete_confirmation_dialog():
+            #Get row indexes in reverse order to avoid changing indexes as rows are removed
+            selected_rows = sorted(set(index.row() for index in self.tableWidget.selectedIndexes()), reverse=True)
+
+            for row in selected_rows:
+                self.remove_table_row(row)
+
+
+    # Saves table widget's data to a .xlsx file
+    def saveButton_clicked(self):
+        wb = tablereader.export_table(self.tableWidget)
+
+        ws = wb.active
+        for row in ws.iter_rows(values_only=True):
+            print(row)
+
+        # ADD FUNCTION TO WRITE WORKBOOK TO FILE HERE
+
+
+    def searchBar_textChanged(self):
+        if not self.searchBar.text() == "":
+            # Remove italics from user text
+            font = self.searchBar.font()
+            font.setItalic(False)
+            self.searchBar.setFont(font)
+        else:
+            # Add italics to placeholder text
+            font = self.searchBar.font()
+            font.setItalic(True)
+            self.searchBar.setFont(font)
+
+        self.search_table()
+
+
+    # Searches tableWidget for item names containing user-input string
+    def search_table(self):
+        search = self.searchBar.text().lower()
+
+        # Determine rows to be filtered
+        matching_rows = []
+        if not search == "":
+            # Find rows containing a match
+            matching_items = self.tableWidget.findItems(search, Qt.MatchContains)
+            matching_rows = set() # Set only allows unique values for row indexes
+            for item in matching_items:
+                matching_rows.add(item.row())
+        else: # Display all rows in table on empty search
+            matching_rows = range(self.tableWidget.rowCount())
+
+        # Hide all rows not matching search
+        for row in range(self.tableWidget.rowCount()):
+            if row in matching_rows:
+                self.tableWidget.showRow(row)
+            else:
+                self.tableWidget.hideRow(row)
+
 
     # Event triggered by window resize, adjusts size and position of widgets
     def resizeEvent(self, event):
@@ -76,8 +183,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.saveButton.setGeometry(QRect(10, window_height - 40, 71, button_height))  # Save button on the bottom-left
 
         # Resize and position the search bar and buttons at the top
-        self.searchBar.setGeometry(QRect(230, 20, window_width - 290, button_height))  # Search bar on the top-right
-        self.searchButton.setGeometry(QRect(window_width - 50, 20, 41, button_height))  # Search button on the top-right
+        self.searchBar.setGeometry(QRect(230, 20, window_width - 240, button_height))  # Search bar on the top-right
 
         # Home button (fixed size)
         self.homeButton.setGeometry(QRect(10, 20, 71, button_height))  # Home button on the top-left
