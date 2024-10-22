@@ -1,9 +1,10 @@
 import sys
+
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel
+
 from InventoryScreen import InventoryScreen
-from pathlib import Path
-sys.path.append((Path(__file__).parent.parent.resolve() / 'Noah').resolve().__str__()) #Get files from Noah's folder
 from login import LoginWindow
+
 
 # (Placeholder) Home Screen Class
 class HomeScreen(QWidget):

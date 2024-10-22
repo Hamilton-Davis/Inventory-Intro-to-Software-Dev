@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QTableWidgetItem
 import openpyxl
+from PySide6.QtWidgets import QTableWidgetItem
+
 
 # Exports a table widget's data to openpyxl workbook
 def export_table(table):
