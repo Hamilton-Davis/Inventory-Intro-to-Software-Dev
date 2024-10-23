@@ -59,12 +59,12 @@ class CentralWidget(QWidget):
         # Add spacer to push exit button down
         self.main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # Create layout for the exit button
+        # Create layout for the logout button
         self.exit_button_layout = QHBoxLayout()
         self.exit_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))  # Add left spacer
-        self.button4 = QPushButton("Exit", self)  # Create exit button
+        self.button4 = QPushButton("Logout", self)  # Create logout button
         self.button4.setFixedSize(75, 75)  # Set button size
-        self.button4.clicked.connect(self.exit_callback)  # Connect exit button to callback
+        self.button4.clicked.connect(self.parent().logout)  # Connect logout button to the logout method
         self.exit_button_layout.addWidget(self.button4)  # Add button to exit layout
 
         # Add exit button layout to main layout
@@ -85,7 +85,6 @@ class CentralWidget(QWidget):
 
         self.settings_widget.show()  # Show settings widget
 
-
     def back_to_main_menu(self):
         # Hide settings widget and show main menu widgets (title and buttons)
         self.settings_widget.hide()
@@ -93,7 +92,7 @@ class CentralWidget(QWidget):
         self.button1.show()  # Show first button
         self.button2.show()  # Show second button
         self.button3.show()  # Show settings button
-        self.button4.show()  # Show exit button
+        self.button4.show()  # Show logout button
 
     @staticmethod  # Indicates this method not dependent on instance state
     # Function to handle button click actions by printing a message

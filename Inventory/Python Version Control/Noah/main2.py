@@ -2,6 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from ui import CentralWidget  # Import main UI for after login
 from login import LoginWindow  # Import login screen UI
+import dataUtils  # Import utility functions to load/save user data
 
 
 class MainWindow(QMainWindow):
@@ -32,6 +33,16 @@ class MainWindow(QMainWindow):
         self.central_widget.show()  # Show main content (central widget)
         self.setWindowTitle("Inventory Management")  # Update window title to "Inventory Management"
 
+    # Method to handle logout and go back to login screen
+    def logout(self):
+        self.central_widget.hide()  # Hide central widget (main content)
+        self.login_window.show()  # Show login window again
+        self.setWindowTitle("Login")  # Reset window title to "Login"
+        # Reset login fields so they can be entered again
+        self.login_window.reset_login_fields()
+        # Reload updated user data from file
+        self.login_window.user_data = dataUtils.load_user_data()
+
     @staticmethod
     def exit_application():
         # Exit application
@@ -48,4 +59,3 @@ if __name__ == "__main__":
 
     # Execute application event loop
     sys.exit(app.exec())
-
