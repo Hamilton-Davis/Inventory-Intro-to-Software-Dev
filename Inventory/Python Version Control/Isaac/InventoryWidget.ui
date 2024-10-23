@@ -113,7 +113,8 @@
     <string>Save</string>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+    <iconset>
+     <normaloff>icons/save.svg</normaloff>icons/save.svg</iconset>
    </property>
   </widget>
   <widget class="QPushButton" name="addItemButton">
@@ -129,7 +130,8 @@
     <string>Add</string>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+    <iconset>
+     <normaloff>icons/plus.svg</normaloff>icons/plus.svg</iconset>
    </property>
   </widget>
   <widget class="QPushButton" name="editItemButton">
@@ -145,7 +147,8 @@
     <string>Edit</string>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditRedo"/>
+    <iconset>
+     <normaloff>icons/edit.svg</normaloff>icons/edit.svg</iconset>
    </property>
   </widget>
   <widget class="QPushButton" name="removeItemButton">
@@ -166,7 +169,8 @@
     <string>Remove</string>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ListRemove"/>
+    <iconset>
+     <normaloff>icons/trash-2.svg</normaloff>icons/trash-2.svg</iconset>
    </property>
   </widget>
   <widget class="QLineEdit" name="searchBar">
@@ -200,7 +204,8 @@
     <string>Home</string>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::GoHome"/>
+    <iconset>
+     <normaloff>icons/home.svg</normaloff>icons/home.svg</iconset>
    </property>
   </widget>
  </widget>

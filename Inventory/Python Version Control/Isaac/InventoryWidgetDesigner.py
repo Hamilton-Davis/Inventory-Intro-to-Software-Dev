@@ -3,15 +3,23 @@
 ################################################################################
 ## Form generated from reading UI file 'InventoryWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect)
-from PySide6.QtGui import (QFont, QIcon)
-from PySide6.QtWidgets import (QAbstractItemView, QLineEdit,
-                               QPushButton, QTableWidget, QTableWidgetItem)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHeaderView, QLineEdit,
+    QPushButton, QSizePolicy, QTableWidget, QTableWidgetItem,
+    QWidget)
+from pathlib import Path
+icons_path = Path(__file__).absolute().parent / 'icons'
 
 class Ui_InventoryWidget(object):
     def setupUi(self, InventoryWidget):
@@ -50,24 +58,27 @@ class Ui_InventoryWidget(object):
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
         self.tableWidget.horizontalHeader().setMinimumSectionSize(0)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(100)
-        self.tableWidget.horizontalHeader().setProperty("showSortIndicator", True)
+        self.tableWidget.horizontalHeader().setProperty(u"showSortIndicator", True)
         self.tableWidget.horizontalHeader().setStretchLastSection(False)
         self.tableWidget.verticalHeader().setCascadingSectionResizes(True)
         self.tableWidget.verticalHeader().setStretchLastSection(False)
         self.saveButton = QPushButton(InventoryWidget)
         self.saveButton.setObjectName(u"saveButton")
         self.saveButton.setGeometry(QRect(10, 440, 61, 26))
-        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.DocumentSave))
+        icon = QIcon()
+        icon.addFile((icons_path / 'save.svg').__str__(), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.saveButton.setIcon(icon)
         self.addItemButton = QPushButton(InventoryWidget)
         self.addItemButton.setObjectName(u"addItemButton")
         self.addItemButton.setGeometry(QRect(530, 440, 87, 26))
-        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListAdd))
+        icon1 = QIcon()
+        icon1.addFile((icons_path / 'plus.svg').__str__(), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.addItemButton.setIcon(icon1)
         self.editItemButton = QPushButton(InventoryWidget)
         self.editItemButton.setObjectName(u"editItemButton")
         self.editItemButton.setGeometry(QRect(630, 440, 87, 26))
-        icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.EditRedo))
+        icon2 = QIcon()
+        icon2.addFile((icons_path / 'edit.svg').__str__(), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.editItemButton.setIcon(icon2)
         self.removeItemButton = QPushButton(InventoryWidget)
         self.removeItemButton.setObjectName(u"removeItemButton")
@@ -75,7 +86,8 @@ class Ui_InventoryWidget(object):
         font1 = QFont()
         font1.setPointSize(11)
         self.removeItemButton.setFont(font1)
-        icon3 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListRemove))
+        icon3 = QIcon()
+        icon3.addFile((icons_path / 'trash-2.svg').__str__(), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.removeItemButton.setIcon(icon3)
         self.searchBar = QLineEdit(InventoryWidget)
         self.searchBar.setObjectName(u"searchBar")
@@ -86,7 +98,8 @@ class Ui_InventoryWidget(object):
         self.homeButton = QPushButton(InventoryWidget)
         self.homeButton.setObjectName(u"homeButton")
         self.homeButton.setGeometry(QRect(10, 20, 71, 26))
-        icon4 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.GoHome))
+        icon4 = QIcon()
+        icon4.addFile((icons_path / 'home.svg').__str__(), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.homeButton.setIcon(icon4)
 
         self.retranslateUi(InventoryWidget)
@@ -119,3 +132,4 @@ class Ui_InventoryWidget(object):
         self.searchBar.setPlaceholderText(QCoreApplication.translate("InventoryWidget", u"Search Item", None))
         self.homeButton.setText(QCoreApplication.translate("InventoryWidget", u"Home", None))
     # retranslateUi
+
