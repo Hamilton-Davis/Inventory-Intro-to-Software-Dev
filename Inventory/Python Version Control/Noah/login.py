@@ -40,7 +40,7 @@ class LoginWindow(QWidget):
         self.layout.addWidget(self.show_password_checkbox)  # Add checkbox to layout
 
         self.login_button = QPushButton("Login", self)  # Login button
-        self.login_button.setFixedSize(200, 40)  # Set button size
+        self.login_button.setFixedSize(300, 40)  # Set button size
         self.layout.addWidget(self.login_button)  # Add login button to layout
         self.login_button.clicked.connect(self.check_login)  # Connect button to login check method
 
@@ -49,7 +49,7 @@ class LoginWindow(QWidget):
         self.entry_password.returnPressed.connect(self.check_login)
 
         self.exit_button = QPushButton("Exit", self)  # Exit button
-        self.exit_button.setFixedSize(200, 40)  # Set button size
+        self.exit_button.setFixedSize(300, 40)  # Set button size
         self.exit_button.clicked.connect(QApplication.quit)  # Connect button to quit application
         self.layout.addWidget(self.exit_button)  # Add exit button to layout
 
