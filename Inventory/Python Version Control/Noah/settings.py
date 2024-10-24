@@ -115,7 +115,7 @@ class SettingsWidget(QWidget):
         print(f"Toggle state changed to: {state}")  # Debug
 
         # Show or mask password based on checkbox state
-        if state == Qt.CheckState.Checked:  # If checked, show password
+        if state == 2:  # If checked, show password
             self.change_password_input.setEchoMode(QLineEdit.EchoMode.Normal)
             self.confirm_password_input.setEchoMode(QLineEdit.EchoMode.Normal)
             print("Passwords should now be visible")  # Debug
