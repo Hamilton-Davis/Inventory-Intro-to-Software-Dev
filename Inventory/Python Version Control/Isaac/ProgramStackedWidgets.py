@@ -1,28 +1,54 @@
 import sys
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel, QSpacerItem, QSizePolicy, QHBoxLayout
 from InventoryScreen import InventoryScreen
 from pathlib import Path
+from PySide6.QtGui import QFont
+from PySide6.QtCore import Qt
 sys.path.append((Path(__file__).parent.parent.resolve() / 'Noah').resolve().__str__()) #Get files from Noah's folder
 from login import LoginWindow
+import dataUtils
+from settings import SettingsWidget
 
 # (Placeholder) Home Screen Class
 class HomeScreen(QWidget):
-    def __init__(self, switch_to_inventory, switch_to_sales):
+    def __init__(self, switch_to_inventory, switch_to_sales, logout_callback, settings_callback):
         super().__init__()
         layout = QVBoxLayout(self)
-        self.label = QLabel("Home Screen", self)
+
+        self.label = QLabel("Main Menu", self)
+        self.label.setFont(QFont("Arial", 60))  # Set font and size
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center align text
         layout.addWidget(self.label)
 
         # Buttons to switch screens
         self.inventoryButton = QPushButton("Go to Inventory", self)
+        self.inventoryButton.setFixedSize(200, 150)
         self.inventoryButton.clicked.connect(switch_to_inventory)
         layout.addWidget(self.inventoryButton)
 
         self.loginButton = QPushButton("Go to Sales", self)
+        self.loginButton.setFixedSize(200, 150)
         self.loginButton.clicked.connect(switch_to_sales)
         layout.addWidget(self.loginButton)
 
+        self.settingsButton = QPushButton("Go to Settings", self)
+        self.settingsButton.setFixedSize(200, 150)
+        self.settingsButton.clicked.connect(settings_callback)
+        layout.addWidget(self.settingsButton)
+
+        # Create layout for the logout button
+        self.logout_layout = QHBoxLayout()
+        self.logout_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.logoutButton = QPushButton("Logout", self)
+        self.logoutButton.setFixedSize(75, 75)
+        self.logoutButton.clicked.connect(logout_callback)  # Connect to the logout callback
+        self.logout_layout.addWidget(self.logoutButton)
+
+        # Add logout layout to main layout
+        layout.addLayout(self.logout_layout)
+
         self.setLayout(layout)
+
 
 # (Placeholder) Sales Screen Class
 class SalesScreen(QWidget):
@@ -33,6 +59,7 @@ class SalesScreen(QWidget):
         layout.addWidget(self.label)
         self.setLayout(layout)
 
+
 # (Placeholder) Settings Screen Class
 class SettingsScreen(QWidget):
     def __init__(self):
@@ -41,6 +68,7 @@ class SettingsScreen(QWidget):
         self.label = QLabel("Settings", self)
         layout.addWidget(self.label)
         self.setLayout(layout)
+
 
 # MainWidget contains a StackedWidget, which allows easy switching of the displayed widget
 class MainWidget(QWidget):
@@ -84,20 +112,21 @@ class MainWidget(QWidget):
         self.initialScreen = self.someScreen1
             will set the initial screen to someScreen1
     """
+
     def setup_screens(self):
         # Create screens
-        self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen)
+        self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen, self.logout, self.show_settings_screen)
         self.inventoryScreen = InventoryScreen(self.show_home_screen)
         self.salesScreen = SalesScreen()
-        self.settingsScreen = SettingsScreen()
+        self.settingsScreen = SettingsWidget(self, self.show_home_screen)
         self.loginScreen = LoginWindow()
 
         # Add screens to the QStackedWidget
-        self.stackedWidget.addWidget(self.loginScreen) # Index 0
+        self.stackedWidget.addWidget(self.loginScreen)  # Index 0
         self.stackedWidget.addWidget(self.homeScreen)  # Index 1
-        self.stackedWidget.addWidget(self.inventoryScreen) # Index 2
+        self.stackedWidget.addWidget(self.inventoryScreen)  # Index 2
         self.stackedWidget.addWidget(self.salesScreen)  # Index 3
-        self.stackedWidget.addWidget(self.settingsScreen) # Index 4
+        self.stackedWidget.addWidget(self.settingsScreen)  # Index 4
 
         # Set the initial screen (Login screen)
         self.initialScreen = self.loginScreen
@@ -105,6 +134,14 @@ class MainWidget(QWidget):
 
         # Connect login_success signal to display main content after login
         self.loginScreen.login_success.connect(self.show_home_screen)
+
+    # Method to handle logout and go back to login screen
+    def logout(self):
+        self.stackedWidget.setCurrentWidget(self.loginScreen)  # Show login screen
+        self.setWindowTitle("Login")  # Reset window title to "Login"
+        self.loginScreen.reset_login_fields()  # Reset login fields if needed
+        # Reload updated user data from file
+        self.loginScreen.user_data = dataUtils.load_user_data()
 
     # Changes the displayed widget to homeScreen
     def show_home_screen(self):
@@ -135,3 +172,4 @@ if __name__ == "__main__":
     mainWidget.show()
 
     sys.exit(app.exec())
+
