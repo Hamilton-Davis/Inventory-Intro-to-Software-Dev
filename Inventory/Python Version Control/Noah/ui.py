@@ -5,8 +5,8 @@ from settings import SettingsWidget  # Import settings screen
 
 
 class CentralWidget(QWidget):
-    def __init__(self, parent, exit_callback):
-        super().__init__(parent)  # Initialize parent QWidget
+    def __init__(self, inventory_callback, sales_callback, logout_callback, settings_callback):
+        super().__init__()  # Initialize parent QWidget
         # Initialize button references and layout containers
         self.button1 = None
         self.button2 = None
@@ -16,7 +16,10 @@ class CentralWidget(QWidget):
         self.button_layout = None
         self.main_layout = None
         self.title_label = None
-        self.exit_callback = exit_callback  # Callback for exit button
+        self.logout_callback = logout_callback  # Callback for exit button
+        self.inventory_callback = inventory_callback
+        self.sales_callback = sales_callback
+        self.settings_callback = settings_callback
         self.settings_widget = None  # Initialize settings widget reference
         self.init_ui()  # Call UI setup method
 
@@ -25,7 +28,7 @@ class CentralWidget(QWidget):
         self.main_layout = QVBoxLayout(self)
 
         # Create and configure title label
-        self.title_label = QLabel("Inventory Management", self)
+        self.title_label = QLabel("Main Menu", self)
         self.title_label.setFont(QFont("Arial", 60))  # Set font and size
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center align text
         self.main_layout.addWidget(self.title_label)  # Add title label to layout
@@ -40,17 +43,17 @@ class CentralWidget(QWidget):
         self.button1 = QPushButton("Check Inventory", self)
         self.button1.setFixedSize(200, 150)  # Set button size
         # Connect button click to message action (prints message to console)
-        self.button1.clicked.connect(lambda: CentralWidget.message_action("Checking Inventory..."))
+        self.button1.clicked.connect(self.inventory_callback)
         self.button_layout.addWidget(self.button1)  # Add button to layout
 
         self.button2 = QPushButton("Sales Analysis", self)
         self.button2.setFixedSize(200, 150)
-        self.button2.clicked.connect(lambda: CentralWidget.message_action("Performing Sales Analysis..."))
+        self.button2.clicked.connect(self.sales_callback)
         self.button_layout.addWidget(self.button2)
 
         self.button3 = QPushButton("Settings", self)
         self.button3.setFixedSize(200, 150)
-        self.button3.clicked.connect(self.show_settings)  # Connect to show settings screen
+        self.button3.clicked.connect(self.settings_callback)  # Connect to show settings screen
         self.button_layout.addWidget(self.button3)
 
         # Add button layout to main layout
@@ -64,7 +67,7 @@ class CentralWidget(QWidget):
         self.exit_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))  # Add left spacer
         self.button4 = QPushButton("Logout", self)  # Create logout button
         self.button4.setFixedSize(75, 75)  # Set button size
-        self.button4.clicked.connect(self.parent().logout)  # Connect logout button to the logout method
+        self.button4.clicked.connect(self.logout_callback)  # Connect logout button to the logout method
         self.exit_button_layout.addWidget(self.button4)  # Add button to exit layout
 
         # Add exit button layout to main layout
