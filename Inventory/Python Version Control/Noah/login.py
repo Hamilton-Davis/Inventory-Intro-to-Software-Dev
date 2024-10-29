@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QVBoxLayout, QLabel, QLineEdit, QPushButton, QMess
 from PySide6.QtCore import Signal, Qt
 import dataUtils  # Import utility functions
 
-
 class LoginWindow(QWidget):
     login_success = Signal()  # Signal emitted when login is successful
 
@@ -104,3 +103,9 @@ class LoginWindow(QWidget):
         # Clear input fields
         self.entry_username.clear()
         self.entry_password.clear()
+
+    def reload(self):
+        # Reset login fields if needed
+        self.reset_login_fields()
+        # Reload updated user data from file
+        self.user_data = dataUtils.load_user_data()
