@@ -29,9 +29,16 @@ class SettingsWidget(QWidget):
         # Horizontal layout to hold username and password sections
         horizontal_layout = QHBoxLayout()
 
+        # Set a fixed width for consistency across both sections
+        section_width = 300
+
         # ---------- Change Username Section ----------
         username_layout = QVBoxLayout()
-        # Label for username change section
+
+        # Spacer to adjust alignment with password section
+        username_layout.addSpacerItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Fixed))
+
+        # Title for username change section
         username_label = QLabel("Change Username", self)
         username_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         username_layout.addWidget(username_label)
@@ -39,13 +46,13 @@ class SettingsWidget(QWidget):
         # Input for new username
         self.change_username_input = QLineEdit(self)
         self.change_username_input.setPlaceholderText("Enter new username")
-        self.change_username_input.setFixedSize(300, 50)
+        self.change_username_input.setFixedSize(section_width, 50)
         username_layout.addWidget(self.change_username_input)
 
         # Input for confirming username
         self.confirm_username_input = QLineEdit(self)
         self.confirm_username_input.setPlaceholderText("Confirm new username")
-        self.confirm_username_input.setFixedSize(300, 50)
+        self.confirm_username_input.setFixedSize(section_width, 50)
         username_layout.addWidget(self.confirm_username_input)
 
         # Button to trigger username change
@@ -57,9 +64,13 @@ class SettingsWidget(QWidget):
         # Add username section to horizontal layout
         horizontal_layout.addLayout(username_layout)
 
+        # Spacer between sections for alignment
+        horizontal_layout.addSpacerItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
         # ---------- Change Password Section ----------
         password_layout = QVBoxLayout()
-        # Label for password change section
+
+        # Title for password change section
         password_label = QLabel("Change Password", self)
         password_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         password_layout.addWidget(password_label)
@@ -67,18 +78,18 @@ class SettingsWidget(QWidget):
         # Input for new password
         self.change_password_input = QLineEdit(self)
         self.change_password_input.setPlaceholderText("Enter new password")
-        self.change_password_input.setEchoMode(QLineEdit.EchoMode.Password)  # Mask password input
-        self.change_password_input.setFixedSize(300, 50)
+        self.change_password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.change_password_input.setFixedSize(section_width, 50)
         password_layout.addWidget(self.change_password_input)
 
         # Input for confirming password
         self.confirm_password_input = QLineEdit(self)
         self.confirm_password_input.setPlaceholderText("Confirm new password")
-        self.confirm_password_input.setEchoMode(QLineEdit.EchoMode.Password)  # Mask password input
-        self.confirm_password_input.setFixedSize(300, 50)
+        self.confirm_password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.confirm_password_input.setFixedSize(section_width, 50)
         password_layout.addWidget(self.confirm_password_input)
 
-        # Checkbox to toggle password visibility
+        # Checkbox to toggle password visibility, placed below confirm password
         self.show_password_checkbox = QCheckBox("Show Password", self)
         self.show_password_checkbox.stateChanged.connect(self.toggle_password_visibility)
         password_layout.addWidget(self.show_password_checkbox)
@@ -96,49 +107,49 @@ class SettingsWidget(QWidget):
         self.main_layout.addLayout(horizontal_layout)
 
         # Spacer for layout structure
-        self.main_layout.addSpacerItem(QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        self.main_layout.addSpacerItem(QSpacerItem(20, 60, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # Back button layout (aligned to right side)
-        self.back_button_layout = QHBoxLayout()
-        self.back_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        # Layout for back button and reset button
+        bottom_layout = QHBoxLayout()
+        bottom_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        # Reset to Default button
+        self.reset_button = QPushButton("Reset to Default", self)
+        self.reset_button.setFixedSize(150, 40)
+        self.reset_button.clicked.connect(self.reset_to_default)
+        bottom_layout.addWidget(self.reset_button)
+
         # Back button to return to previous screen
         self.back_button = QPushButton("Home", self)
         self.back_button.setFixedSize(75, 75)
         self.back_button.clicked.connect(self.back_callback)
-        self.back_button_layout.addWidget(self.back_button)
-        self.main_layout.addLayout(self.back_button_layout)
+        bottom_layout.addWidget(self.back_button)
+
+        # Add bottom layout to main layout
+        self.main_layout.addLayout(bottom_layout)
 
         self.setLayout(self.main_layout)  # Set layout for settings screen
 
     # Method to toggle password visibility
     def toggle_password_visibility(self, state):
-        print(f"Toggle state changed to: {state}")  # Debug
-
-        # Show or mask password based on checkbox state
-        if state == 2:  # If checked, show password
+        if state == 2:
             self.change_password_input.setEchoMode(QLineEdit.EchoMode.Normal)
             self.confirm_password_input.setEchoMode(QLineEdit.EchoMode.Normal)
-            print("Passwords should now be visible")  # Debug
-        else:  # If unchecked, mask password
+        else:
             self.change_password_input.setEchoMode(QLineEdit.EchoMode.Password)
             self.confirm_password_input.setEchoMode(QLineEdit.EchoMode.Password)
-            print("Passwords should now be masked")  # Debug
 
     # Method to handle username change
     def change_username(self):
         new_username = self.change_username_input.text()
         confirm_username = self.confirm_username_input.text()
-
-        # Validation to ensure both fields are filled
         if not new_username or not confirm_username:
             QMessageBox.warning(self, "Error", "Please fill both fields.")
             return
-
-        # Check if new username matches confirmation
         if new_username == confirm_username:
             self.user_data['username'] = new_username
             dataUtils.save_user_data(self.user_data['username'], self.user_data['password'])
-            self.data_updated.emit()  # Emit signal to indicate data update
+            self.data_updated.emit()
             QMessageBox.information(self, "Success", f"Username changed successfully to {new_username}!")
         else:
             QMessageBox.warning(self, "Error", "Usernames do not match!")
@@ -147,17 +158,24 @@ class SettingsWidget(QWidget):
     def change_password(self):
         new_password = self.change_password_input.text()
         confirm_password = self.confirm_password_input.text()
-
-        # Validation to ensure both fields are filled
         if not new_password or not confirm_password:
             QMessageBox.warning(self, "Error", "Please fill both fields.")
             return
-
-        # Check if new password matches confirmation
         if new_password == confirm_password:
             self.user_data['password'] = new_password
             dataUtils.save_user_data(self.user_data['username'], self.user_data['password'])
-            self.data_updated.emit()  # Emit signal to indicate data update
+            self.data_updated.emit()
             QMessageBox.information(self, "Success", "Password changed successfully!")
         else:
             QMessageBox.warning(self, "Error", "Passwords do not match!")
+
+    # Method to reset credentials to default
+    def reset_to_default(self):
+        default_username = "admin"
+        default_password = "password"
+        self.user_data['username'] = default_username
+        self.user_data['password'] = default_password
+        dataUtils.save_user_data(default_username, default_password)
+        self.data_updated.emit()
+        QMessageBox.information(self, "Reset Successful",
+                                "Credentials reset to default (username: admin, password: password).")
