@@ -8,17 +8,13 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHeaderView, QLineEdit,
-    QPushButton, QSizePolicy, QTableWidget, QTableWidgetItem,
-    QWidget)
 from pathlib import Path
+
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, QSize)
+from PySide6.QtGui import (QFont, QIcon)
+from PySide6.QtWidgets import (QAbstractItemView, QLineEdit,
+                               QPushButton, QTableWidget, QTableWidgetItem)
+
 icons_path = Path(__file__).absolute().parent / 'icons'
 
 class Ui_InventoryWidget(object):
@@ -132,4 +128,3 @@ class Ui_InventoryWidget(object):
         self.searchBar.setPlaceholderText(QCoreApplication.translate("InventoryWidget", u"Search Item", None))
         self.homeButton.setText(QCoreApplication.translate("InventoryWidget", u"Home", None))
     # retranslateUi
-
