@@ -8,10 +8,26 @@ Overview of Software,
 
   Features:
 
-    Inventory Display
+    Inventory
 
-      Add Stock
-      Remove Stock
+      Add/Edit/Remove Stock
+      Search for items
+      Sort inventory by category
 
+    Login
 
-To Be Continued. . .
+        Default login: user: admin;  password: password
+        Logout from Home menu
+        Update username/password
+        Reset login to defaults
+
+  To Install Dependencies:
+    
+    pip install PySide6
+    pip install openpyxl
+
+  To Run:
+    
+    Compile and run main.py from [project root]/Inventory/main.py
+
+    Executable file to come with final version

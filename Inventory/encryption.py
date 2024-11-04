@@ -1,5 +1,6 @@
-from cryptography.fernet import Fernet
 import os
+
+from cryptography.fernet import Fernet
 
 # Path to the encryption key
 KEY_FILE_PATH = "secret.key"

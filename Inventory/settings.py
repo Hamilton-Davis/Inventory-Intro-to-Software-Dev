@@ -1,6 +1,7 @@
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QSpacerItem, QSizePolicy, \
     QLineEdit, QMessageBox, QCheckBox
-from PySide6.QtCore import Qt, Signal
+
 import dataUtils  # Import utility functions
 
 

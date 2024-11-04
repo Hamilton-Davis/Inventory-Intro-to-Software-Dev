@@ -1,11 +1,11 @@
 import sys
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel, QSpacerItem, QSizePolicy, QHBoxLayout
+
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel
+
 from InventoryScreen import InventoryScreen
-from pathlib import Path
-sys.path.append((Path(__file__).parent.parent.resolve() / 'Noah').resolve().__str__()) #Get files from Noah's folder
 from login import LoginWindow as LoginScreen
-from ui import CentralWidget as HomeScreen
 from settings import SettingsWidget as SettingsScreen
+from ui import CentralWidget as HomeScreen
 
 
 # (Placeholder) Sales Screen Class
@@ -13,7 +13,7 @@ class SalesScreen(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout(self)
-        self.label = QLabel("Sales Screen", self)
+        self.label = QLabel("Sales Screen coming soon....", self)
         layout.addWidget(self.label)
         self.setLayout(layout)
 
@@ -118,4 +118,3 @@ if __name__ == "__main__":
     mainWidget.show()
 
     sys.exit(app.exec())
-
