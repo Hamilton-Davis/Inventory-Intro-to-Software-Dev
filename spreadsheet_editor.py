@@ -6,12 +6,12 @@
 # 
 
 
+import glob
 ### Think we can use pandas to create a dataframe and store that way
 ## like in stats (CS2020) with R
 import os
-import glob
-import pandas as pd
 
+import pandas as pd
 
 # this filepathing is catered to be inside the main branch (ie. outside of the inventory folder so it can navigate there)
 
@@ -20,7 +20,7 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 # Define the relative path to the Excel sheets folder
-folderPath = os.path.join(script_dir, 'inventory', 'excel sheets', '*')
+folderPath = os.path.join(script_dir, 'Inventory', 'Excel Sheets', '*')
 
 # Function to find the most recent file in the folder
 def getNewestFile(folderPath):
@@ -45,5 +45,3 @@ pass
 print(inventoryList)
 
 # implement reading file to dataframe
-
-

@@ -26,7 +26,15 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
     # Imports data from an existing table into tableWidget
     def import_table(self):
+        # Clear pre-set columns
+        self.tableWidget.setColumnCount(0)
+
         table = tablereader.import_workbook()
+        # Add columns titles
+        for column in table[0]:
+            self.add_table_column(column)
+
+        # Add row data
         for row in table[1]:
             self.add_table_row(row)
 
@@ -68,8 +76,8 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
     # row_data is an optional parameter to set values of row
     def add_table_row(self, row_data=None):
         # Create new row
-        row_count = self.tableWidget.rowCount()
-        self.tableWidget.insertRow(row_count)
+        row_index = self.tableWidget.rowCount()
+        self.tableWidget.insertRow(row_index)
 
         # If row_data is provided, use its values; otherwise, default to "New Item" and blank spaces
         for column in range(self.tableWidget.columnCount()):
@@ -85,8 +93,19 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
             # Add item to table
             item = QTableWidgetItem(item_data)
-            self.tableWidget.setItem(row_count, column, item)
+            self.tableWidget.setItem(row_index, column, item)
             if not isImport: item.setBackground(QColor("light green")) # Mark empty added row with green
+
+    # Adds new column to table
+    # Used for overwriting default columns with file
+    def add_table_column(self, column_name=""):
+        # Create new column
+        column_index = self.tableWidget.columnCount()
+        self.tableWidget.insertColumn(column_index)
+
+        # Add column name
+        item = QTableWidgetItem(column_name)
+        self.tableWidget.setHorizontalHeaderItem(column_index,  item)
 
 
     # Removes selected row from table
