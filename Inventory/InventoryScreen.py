@@ -16,6 +16,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.setupUi(self)
         self.setup_table()
         self.searchKeyBar.textChanged.connect(self.searchKeyBar_textChanged)
+        self.searchCategoryBar.textChanged.connect(self.searchCategoryBar_textChanged)
 
         # Connect buttons
         self.addItemButton.clicked.connect(self.add_table_row)
@@ -141,6 +142,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
 
     def searchKeyBar_textChanged(self):
+        # Changes formatting for placeholder vs. user text
         if not self.searchKeyBar.text() == "":
             # Remove italics from user text
             font = self.searchKeyBar.font()
@@ -153,6 +155,21 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
             self.searchKeyBar.setFont(font)
 
         self.search_table()
+
+    def searchCategoryBar_textChanged(self):
+        # Changes formatting for placeholder vs. user text
+        if not self.searchCategoryBar.text() == "":
+            # Remove italics from user text
+            font = self.searchCategoryBar.font()
+            font.setItalic(False)
+            self.searchCategoryBar.setFont(font)
+        else:
+            # Add italics to placeholder text
+            font = self.searchCategoryBar.font()
+            font.setItalic(True)
+            self.searchCategoryBar.setFont(font)
+
+        # ADD SEARCH LOGIC HERE
 
 
     # Searches tableWidget for item names containing user-input string
@@ -193,6 +210,9 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
         # Button positions
         button_x_start = window_width - button_width - 10  # Adjust the X position to stay on the right side
+        searchBarGap = self.searchCategoryBar.geometry().right() - self.searchKeyBar.geometry().left() + 20
+        categoryBarRight = self.searchCategoryBar.geometry().right()
+        searchBarLength =  self.tableWidget.geometry().right() - self.searchKeyBar.geometry().left()
 
         # Set positions for each button
         # Add, edit, and remove buttons on the bottom-right
@@ -202,7 +222,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.saveButton.setGeometry(QRect(10, window_height - 40, 71, button_height))  # Save button on the bottom-left
 
         # Resize and position the search bar and buttons at the top
-        self.searchKeyBar.setGeometry(QRect(230, 20, window_width - 240, button_height))  # Search bar on the top-right
+        self.searchKeyBar.setGeometry(QRect(categoryBarRight + searchBarGap, 20, searchBarLength, button_height))  # Search bar on the top-right
 
         # Home button (fixed size)
         self.homeButton.setGeometry(QRect(10, 20, 71, button_height))  # Home button on the top-left
