@@ -169,8 +169,6 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
             font.setItalic(True)
             self.searchCategoryBar.setFont(font)
 
-        # ADD SEARCH LOGIC HERE
-
 
     # Searches tableWidget for item names containing user-input string
     def search_table(self):
