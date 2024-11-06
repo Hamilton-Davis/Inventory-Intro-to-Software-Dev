@@ -173,12 +173,12 @@
      <normaloff>icons/trash-2.svg</normaloff>icons/trash-2.svg</iconset>
    </property>
   </widget>
-  <widget class="QLineEdit" name="searchBar">
+  <widget class="QLineEdit" name="searchKeyBar">
    <property name="geometry">
     <rect>
-     <x>420</x>
+     <x>490</x>
      <y>20</y>
-     <width>401</width>
+     <width>331</width>
      <height>26</height>
     </rect>
    </property>
@@ -188,7 +188,7 @@
     </font>
    </property>
    <property name="placeholderText">
-    <string>Search Item</string>
+    <string>Search for...</string>
    </property>
   </widget>
   <widget class="QPushButton" name="homeButton">
@@ -206,6 +206,24 @@
    <property name="icon">
     <iconset>
      <normaloff>icons/home.svg</normaloff>icons/home.svg</iconset>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="searchCategoryBar">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>20</y>
+     <width>291</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <italic>true</italic>
+    </font>
+   </property>
+   <property name="placeholderText">
+    <string>Search in categories...</string>
    </property>
   </widget>
  </widget>

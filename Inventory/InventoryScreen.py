@@ -15,7 +15,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         super(InventoryScreen, self).__init__()
         self.setupUi(self)
         self.setup_table()
-        self.searchBar.textChanged.connect(self.searchBar_textChanged)
+        self.searchKeyBar.textChanged.connect(self.searchKeyBar_textChanged)
 
         # Connect buttons
         self.addItemButton.clicked.connect(self.add_table_row)
@@ -140,24 +140,24 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # ADD FUNCTION TO WRITE WORKBOOK TO FILE HERE
 
 
-    def searchBar_textChanged(self):
-        if not self.searchBar.text() == "":
+    def searchKeyBar_textChanged(self):
+        if not self.searchKeyBar.text() == "":
             # Remove italics from user text
-            font = self.searchBar.font()
+            font = self.searchKeyBar.font()
             font.setItalic(False)
-            self.searchBar.setFont(font)
+            self.searchKeyBar.setFont(font)
         else:
             # Add italics to placeholder text
-            font = self.searchBar.font()
+            font = self.searchKeyBar.font()
             font.setItalic(True)
-            self.searchBar.setFont(font)
+            self.searchKeyBar.setFont(font)
 
         self.search_table()
 
 
     # Searches tableWidget for item names containing user-input string
     def search_table(self):
-        search = self.searchBar.text().lower()
+        search = self.searchKeyBar.text().lower()
 
         # Determine rows to be filtered
         matching_rows = []
@@ -202,7 +202,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.saveButton.setGeometry(QRect(10, window_height - 40, 71, button_height))  # Save button on the bottom-left
 
         # Resize and position the search bar and buttons at the top
-        self.searchBar.setGeometry(QRect(230, 20, window_width - 240, button_height))  # Search bar on the top-right
+        self.searchKeyBar.setGeometry(QRect(230, 20, window_width - 240, button_height))  # Search bar on the top-right
 
         # Home button (fixed size)
         self.homeButton.setGeometry(QRect(10, 20, 71, button_height))  # Home button on the top-left
