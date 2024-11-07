@@ -1,4 +1,5 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QSpacerItem, QSizePolicy, \
     QLineEdit, QMessageBox, QCheckBox
 
@@ -124,6 +125,9 @@ class SettingsWidget(QWidget):
         self.back_button = QPushButton("Home", self)
         self.back_button.setFixedSize(75, 75)
         self.back_button.clicked.connect(self.back_callback)
+        home_icon = QIcon()
+        home_icon.addFile(u"icons/home.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.back_button.setIcon(home_icon)
         bottom_layout.addWidget(self.back_button)
 
         # Add bottom layout to main layout

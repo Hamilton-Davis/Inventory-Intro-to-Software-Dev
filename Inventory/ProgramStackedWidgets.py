@@ -1,21 +1,20 @@
 import sys
-
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel
-
 from InventoryScreen import InventoryScreen
+from SalesScreen import SalesScreen
 from login import LoginWindow as LoginScreen
 from settings import SettingsWidget as SettingsScreen
 from ui import CentralWidget as HomeScreen
 
 
-# (Placeholder) Sales Screen Class
+"""# (Placeholder) Sales Screen Class
 class SalesScreen(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout(self)
         self.label = QLabel("Sales Screen coming soon....", self)
         layout.addWidget(self.label)
-        self.setLayout(layout)
+        self.setLayout(layout)"""
 
 # MainWidget contains a StackedWidget, which allows easy switching of the displayed widget
 class MainWidget(QWidget):
@@ -63,7 +62,7 @@ class MainWidget(QWidget):
         # Create screens
         self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen, self.show_login_screen, self.show_settings_screen)
         self.inventoryScreen = InventoryScreen(self.show_home_screen)
-        self.salesScreen = SalesScreen()
+        self.salesScreen = SalesScreen(self.show_home_screen)
         self.settingsScreen = SettingsScreen(self, self.show_home_screen)
         self.loginScreen = LoginScreen()
 

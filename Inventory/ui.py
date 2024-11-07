@@ -1,5 +1,5 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
 
 from settings import SettingsWidget  # Import settings screen
@@ -43,17 +43,26 @@ class CentralWidget(QWidget):
         # Initialize and configure buttons
         self.button1 = QPushButton("Check Inventory", self)
         self.button1.setFixedSize(200, 150)  # Set button size
+        icon1 = QIcon()
+        icon1.addFile(u"icons/table.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.button1.setIcon(icon1)
         # Connect button click to message action (prints message to console)
         self.button1.clicked.connect(self.inventory_callback)
         self.button_layout.addWidget(self.button1)  # Add button to layout
 
         self.button2 = QPushButton("Sales Analysis", self)
         self.button2.setFixedSize(200, 150)
+        icon2 = QIcon()
+        icon2.addFile(u"icons/dollar-sign.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.button2.setIcon(icon2)
         self.button2.clicked.connect(self.sales_callback)
         self.button_layout.addWidget(self.button2)
 
         self.button3 = QPushButton("Settings", self)
         self.button3.setFixedSize(200, 150)
+        icon3 = QIcon()
+        icon3.addFile(u"icons/settings.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.button3.setIcon(icon3)
         self.button3.clicked.connect(self.settings_callback)  # Connect to show settings screen
         self.button_layout.addWidget(self.button3)
 
@@ -68,6 +77,9 @@ class CentralWidget(QWidget):
         self.exit_button_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))  # Add left spacer
         self.button4 = QPushButton("Logout", self)  # Create logout button
         self.button4.setFixedSize(75, 75)  # Set button size
+        icon4 = QIcon()
+        icon4.addFile(u"icons/log-out.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.button4.setIcon(icon4)
         self.button4.clicked.connect(self.logout_callback)  # Connect logout button to the logout method
         self.exit_button_layout.addWidget(self.button4)  # Add button to exit layout
 

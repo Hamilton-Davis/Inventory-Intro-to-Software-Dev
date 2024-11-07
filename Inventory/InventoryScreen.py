@@ -1,7 +1,6 @@
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget
-
 import popups
 import tablereader
 from InventoryWidgetDesigner import Ui_InventoryWidget

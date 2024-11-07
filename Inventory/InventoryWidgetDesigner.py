@@ -14,7 +14,6 @@ from PySide6.QtGui import (QFont, QIcon)
 from PySide6.QtWidgets import (QAbstractItemView, QLineEdit,
                                QPushButton, QTableWidget, QTableWidgetItem)
 
-icons_path = Path(__file__).absolute().parent / 'icons'
 
 class Ui_InventoryWidget(object):
     def setupUi(self, InventoryWidget):

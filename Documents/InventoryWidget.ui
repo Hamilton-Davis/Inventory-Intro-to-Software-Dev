@@ -114,7 +114,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>icons/save.svg</normaloff>icons/save.svg</iconset>
+     <normaloff>../Inventory/icons/save.svg</normaloff>../Inventory/icons/save.svg</iconset>
    </property>
   </widget>
   <widget class="QPushButton" name="addItemButton">
@@ -131,7 +131,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>icons/plus.svg</normaloff>icons/plus.svg</iconset>
+     <normaloff>../Inventory/icons/plus.svg</normaloff>../Inventory/icons/plus.svg</iconset>
    </property>
   </widget>
   <widget class="QPushButton" name="editItemButton">
@@ -148,7 +148,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>icons/edit.svg</normaloff>icons/edit.svg</iconset>
+     <normaloff>../Inventory/icons/edit.svg</normaloff>../Inventory/icons/edit.svg</iconset>
    </property>
   </widget>
   <widget class="QPushButton" name="removeItemButton">
@@ -170,7 +170,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>icons/trash-2.svg</normaloff>icons/trash-2.svg</iconset>
+     <normaloff>../Inventory/icons/trash-2.svg</normaloff>../Inventory/icons/trash-2.svg</iconset>
    </property>
   </widget>
   <widget class="QLineEdit" name="searchKeyBar">
@@ -192,20 +192,12 @@
    </property>
   </widget>
   <widget class="QPushButton" name="homeButton">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>71</width>
-     <height>26</height>
-    </rect>
-   </property>
    <property name="text">
     <string>Home</string>
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>icons/home.svg</normaloff>icons/home.svg</iconset>
+     <normaloff>../Inventory/icons/home.svg</normaloff>../Inventory/icons/home.svg</iconset>
    </property>
   </widget>
   <widget class="QLineEdit" name="searchCategoryBar">
