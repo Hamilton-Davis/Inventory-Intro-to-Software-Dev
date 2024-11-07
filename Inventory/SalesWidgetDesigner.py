@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'SalesWidgetNMfkPB.ui'
+## Form generated from reading UI file 'SalesWidgetMpzgVs.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
+from PySide6.QtCharts import QChartView
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
@@ -34,19 +35,19 @@ class Ui_SalesWidget(object):
         icon = QIcon()
         icon.addFile(u"../Inventory/icons/home.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.homeButton.setIcon(icon)
-        self.itemSalesGraph = QWidget(SalesWidget)
+        self.itemSalesGraph = QChartView(SalesWidget)
         self.itemSalesGraph.setObjectName(u"itemSalesGraph")
         self.itemSalesGraph.setGeometry(QRect(10, 70, 271, 181))
         self.itemSalesOptionList = QListWidget(SalesWidget)
         self.itemSalesOptionList.setObjectName(u"itemSalesOptionList")
         self.itemSalesOptionList.setGeometry(QRect(290, 70, 101, 171))
-        self.itemQntGraph = QWidget(SalesWidget)
+        self.itemQntGraph = QChartView(SalesWidget)
         self.itemQntGraph.setObjectName(u"itemQntGraph")
         self.itemQntGraph.setGeometry(QRect(10, 290, 271, 181))
         self.itemQntOptionList = QListWidget(SalesWidget)
         self.itemQntOptionList.setObjectName(u"itemQntOptionList")
         self.itemQntOptionList.setGeometry(QRect(290, 290, 101, 171))
-        self.categorySalesGraph = QWidget(SalesWidget)
+        self.categorySalesGraph = QChartView(SalesWidget)
         self.categorySalesGraph.setObjectName(u"categorySalesGraph")
         self.categorySalesGraph.setGeometry(QRect(420, 290, 271, 181))
 
