@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
+    <width>701</width>
     <height>484</height>
    </rect>
   </property>
@@ -16,7 +16,7 @@
   <widget class="SalesPeriodWidget" name="salesPeriodWidget" native="true">
    <property name="geometry">
     <rect>
-     <x>600</x>
+     <x>470</x>
      <y>10</y>
      <width>221</width>
      <height>241</height>
@@ -40,7 +40,7 @@
      <normaloff>../Inventory/icons/home.svg</normaloff>../Inventory/icons/home.svg</iconset>
    </property>
   </widget>
-  <widget class="QWidget" name="itemSalesGraph" native="true">
+  <widget class="QChartView" name="itemSalesGraph" native="true">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -60,7 +60,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="itemQntGraph" native="true">
+  <widget class="QChartView" name="itemQntGraph" native="true">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -80,7 +80,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="categorySalesGraph" native="true">
+  <widget class="QChartView" name="categorySalesGraph" native="true">
    <property name="geometry">
     <rect>
      <x>420</x>
@@ -95,7 +95,13 @@
   <customwidget>
    <class>SalesPeriodWidget</class>
    <extends>QWidget</extends>
-   <header>SalesScreen</header>
+   <header>SalesPeriodWidget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QWidget</extends>
+   <header>PySide6.QtCharts</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
