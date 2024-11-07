@@ -22,7 +22,9 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.editItemButton.clicked.connect(self.editItemButton_clicked)
         self.removeItemButton.clicked.connect(self.removeItemButton_clicked)
         self.saveButton.clicked.connect(self.saveButton_clicked)
-        self.homeButton.clicked.connect(switch_to_home) # Determines action by slot passed in constructor
+        self.homeButton.clicked.connect(switch_to_home)  # Determines action by slot passed in constructor
+        self.searchKeyBar.textChanged.connect(self.search_table)  # Connect search bars to the search function
+        self.searchCategoryBar.textChanged.connect(self.search_table)
 
     # Imports data from an existing table into tableWidget
     def import_table(self):
@@ -168,29 +170,44 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
             font.setItalic(True)
             self.searchCategoryBar.setFont(font)
 
-
     # Searches tableWidget for item names containing user-input string
     def search_table(self):
-        search = self.searchKeyBar.text().lower()
+        category_search = self.searchCategoryBar.text().lower()
+        value_search = self.searchKeyBar.text().lower()
 
-        # Determine rows to be filtered
-        matching_rows = []
-        if not search == "":
-            # Find rows containing a match
-            matching_items = self.tableWidget.findItems(search, Qt.MatchContains)
-            matching_rows = set() # Set only allows unique values for row indexes
-            for item in matching_items:
-                matching_rows.add(item.row())
-        else: # Display all rows in table on empty search
-            matching_rows = range(self.tableWidget.rowCount())
+        # Step 1: Identify target column based on category input
+        category_column_index = -1
+        if category_search:
+            for column in range(self.tableWidget.columnCount()):
+                header_item = self.tableWidget.horizontalHeaderItem(column)
+                if header_item and category_search in header_item.text().lower():
+                    category_column_index = column
+                    break
 
-        # Hide all rows not matching search
+        matching_rows = set()
+
+        # Step 2: Filter rows based on category column if specified
+        if category_column_index != -1:
+            # Search only within specific category column
+            for row in range(self.tableWidget.rowCount()):
+                item = self.tableWidget.item(row, category_column_index)
+                if item and value_search in item.text().lower():
+                    matching_rows.add(row)
+        else:
+            # Else, search for value across all columns
+            for row in range(self.tableWidget.rowCount()):
+                for column in range(self.tableWidget.columnCount()):
+                    item = self.tableWidget.item(row, column)
+                    if item and value_search in item.text().lower():
+                        matching_rows.add(row)
+                        break  # Move to next row as soon as a match is found
+
+        # Step 3: Show or hide rows based on final filtered rows
         for row in range(self.tableWidget.rowCount()):
             if row in matching_rows:
                 self.tableWidget.showRow(row)
             else:
                 self.tableWidget.hideRow(row)
-
 
     # Event triggered by window resize, adjusts size and position of widgets
     def resizeEvent(self, event):
