@@ -1,9 +1,10 @@
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget
+
 import popups
 import tablereader
-from InventoryWidgetDesigner import Ui_InventoryWidget
+from widgetdesigners import Ui_InventoryWidget
 
 
 # Screen user sees when viewing/making changes to inventory
@@ -237,9 +238,6 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
         # Resize and position the search bar and buttons at the top
         self.searchKeyBar.setGeometry(QRect(categoryBarRight + searchBarGap, 20, searchBarLength, button_height))  # Search bar on the top-right
-
-        # Home button (fixed size)
-        self.homeButton.setGeometry(QRect(10, 20, 71, button_height))  # Home button on the top-left
 
         # Call the parent class resizeEvent to ensure proper handling
         super().resizeEvent(event)

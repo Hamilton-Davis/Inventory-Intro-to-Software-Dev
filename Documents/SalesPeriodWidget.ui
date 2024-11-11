@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>265</width>
-    <height>277</height>
+    <width>411</width>
+    <height>45</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QLabel" name="salesPeriodLabel">
      <property name="text">
@@ -21,29 +21,6 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignmentFlag::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QDateEdit" name="fromDateEdit">
-     <property name="currentSection">
-      <enum>QDateTimeEdit::Section::MonthSection</enum>
-     </property>
-     <property name="displayFormat">
-      <string>MM/dd/yyyy</string>
-     </property>
-     <property name="calendarPopup">
-      <bool>true</bool>
-     </property>
-     <property name="timeSpec">
-      <enum>Qt::TimeSpec::LocalTime</enum>
-     </property>
-     <property name="date">
-      <date>
-       <year>2000</year>
-       <month>1</month>
-       <day>1</day>
-      </date>
      </property>
     </widget>
    </item>
@@ -71,22 +48,25 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="periodDaysLabel">
-     <property name="text">
-      <string>Days in Period:</string>
+    <widget class="QDateEdit" name="fromDateEdit">
+     <property name="currentSection">
+      <enum>QDateTimeEdit::Section::MonthSection</enum>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTextEdit" name="instructions">
-     <property name="autoFillBackground">
-      <bool>false</bool>
+     <property name="displayFormat">
+      <string>MM/dd/yyyy</string>
      </property>
-     <property name="readOnly">
+     <property name="calendarPopup">
       <bool>true</bool>
      </property>
-     <property name="placeholderText">
-      <string>Select a start and end date to log and analyze sales for the period. Default timespan is 1 week.</string>
+     <property name="timeSpec">
+      <enum>Qt::TimeSpec::LocalTime</enum>
+     </property>
+     <property name="date">
+      <date>
+       <year>2000</year>
+       <month>1</month>
+       <day>1</day>
+      </date>
      </property>
     </widget>
    </item>

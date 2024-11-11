@@ -1,11 +1,12 @@
 import sys
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget, QLabel
-from InventoryScreen import InventoryScreen
-from SalesScreen import SalesScreen
+
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget
+
+from inventory import InventoryScreen
 from login import LoginWindow as LoginScreen
+from sales import SalesScreen
 from settings import SettingsWidget as SettingsScreen
 from ui import CentralWidget as HomeScreen
-
 
 """# (Placeholder) Sales Screen Class
 class SalesScreen(QWidget):
