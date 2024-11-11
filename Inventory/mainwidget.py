@@ -2,20 +2,12 @@ import sys
 
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QStackedWidget
 
-from inventory import InventoryScreen
+from inventory import InventoryScreen, SalesLogScreen
 from login import LoginWindow as LoginScreen
 from sales import SalesScreen
 from settings import SettingsWidget as SettingsScreen
 from ui import CentralWidget as HomeScreen
 
-"""# (Placeholder) Sales Screen Class
-class SalesScreen(QWidget):
-    def __init__(self):
-        super().__init__()
-        layout = QVBoxLayout(self)
-        self.label = QLabel("Sales Screen coming soon....", self)
-        layout.addWidget(self.label)
-        self.setLayout(layout)"""
 
 # MainWidget contains a StackedWidget, which allows easy switching of the displayed widget
 class MainWidget(QWidget):
@@ -61,53 +53,60 @@ class MainWidget(QWidget):
     """
     def setup_screens(self):
         # Create screens
-        self.homeScreen = HomeScreen(self.show_inventory_screen, self.show_sales_screen, self.show_login_screen, self.show_settings_screen)
-        self.inventoryScreen = InventoryScreen(self.show_home_screen)
-        self.salesScreen = SalesScreen(self.show_home_screen)
-        self.settingsScreen = SettingsScreen(self, self.show_home_screen)
-        self.loginScreen = LoginScreen()
+        self.home_screen = HomeScreen(self.show_inventory_screen, self.show_sales_screen, self.show_login_screen, self.show_settings_screen)
+        self.inventory_screen = InventoryScreen(self.show_home_screen)
+        self.sales_screen = SalesScreen(self.show_home_screen, self.show_sales_log_screen)
+        self.settings_screen = SettingsScreen(self, self.show_home_screen)
+        self.login_screen = LoginScreen()
 
         # Add screens to the QStackedWidget
-        self.stackedWidget.addWidget(self.loginScreen)  # Index 0
-        self.stackedWidget.addWidget(self.homeScreen)  # Index 1
-        self.stackedWidget.addWidget(self.inventoryScreen)  # Index 2
-        self.stackedWidget.addWidget(self.salesScreen)  # Index 3
-        self.stackedWidget.addWidget(self.settingsScreen)  # Index 4
+        self.stackedWidget.addWidget(self.login_screen)  # Index 0
+        self.stackedWidget.addWidget(self.home_screen)  # Index 1
+        self.stackedWidget.addWidget(self.inventory_screen)  # Index 2
+        self.stackedWidget.addWidget(self.sales_screen)  # Index 3
+        self.stackedWidget.addWidget(self.settings_screen)  # Index 4
 
         # Set the initial screen (Login screen)
-        self.initialScreen = self.loginScreen
+        self.initialScreen = self.login_screen
         self.stackedWidget.setCurrentWidget(self.initialScreen)
 
         # Connect login_success signal to display main content after login
-        self.loginScreen.login_success.connect(self.show_home_screen)
+        self.login_screen.login_success.connect(self.show_home_screen)
 
     # Method to handle logout
     def logout(self):
-        self.loginScreen.reload()
+        self.login_screen.reload()
         #self.setWindowTitle("Login")  # Reset window title to "Login"
 
-    # Changes the displayed widget to homeScreen
+    # Changes the displayed widget to home_screen
     def show_home_screen(self):
-        self.stackedWidget.setCurrentWidget(self.homeScreen)
+        self.stackedWidget.setCurrentWidget(self.home_screen)
         #self.stackedWidget.setLayout(self.homeScreen.main_layout)
 
-    # Changes the displayed widget to inventoryScreen
+    # Changes the displayed widget to inventory_screen
     def show_inventory_screen(self):
-        self.stackedWidget.setCurrentWidget(self.inventoryScreen)
+        self.stackedWidget.setCurrentWidget(self.inventory_screen)
 
-    # Changes the displayed widget to salesScreen
+    # Changes the displayed widget to sales_screen
     def show_sales_screen(self):
-        self.stackedWidget.setCurrentWidget(self.salesScreen)
+        self.stackedWidget.setCurrentWidget(self.sales_screen)
 
-    # Changes the displayed widget to settingsScreen
+    # Changes the displayed widget to settings_screen
     def show_settings_screen(self):
-        self.stackedWidget.setCurrentWidget(self.settingsScreen)
+        self.stackedWidget.setCurrentWidget(self.settings_screen)
 
-    # Changes the displayed widget to loginScreen
+    # Changes the displayed widget to login_screen
     # Refreshes login screen on use
     def show_login_screen(self):
         self.logout()
-        self.stackedWidget.setCurrentWidget(self.loginScreen)
+        self.stackedWidget.setCurrentWidget(self.login_screen)
+
+    # Changes displayed widget to sales_log_screen
+    def show_sales_log_screen(self):
+        # Create temporary sales_log_screen (destroyed when switched away from)
+        sales_log_screen = SalesLogScreen(self.show_home_screen)
+        self.stackedWidget.addWidget(sales_log_screen)
+        self.stackedWidget.setCurrentWidget(sales_log_screen)
 
 
 if __name__ == "__main__":

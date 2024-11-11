@@ -11,7 +11,7 @@ from widgetdesigners import Ui_InventoryWidget
 # Screen user sees when viewing/making changes to inventory
 class InventoryScreen(QWidget, Ui_InventoryWidget):
 
-    def __init__(self, switch_to_home):
+    def __init__(self, show_home_screen):
         # Init ui
         super(InventoryScreen, self).__init__()
         self.setupUi(self)
@@ -24,7 +24,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.editItemButton.clicked.connect(self.editItemButton_clicked)
         self.removeItemButton.clicked.connect(self.removeItemButton_clicked)
         self.saveButton.clicked.connect(self.saveButton_clicked)
-        self.homeButton.clicked.connect(switch_to_home)  # Determines action by slot passed in constructor
+        self.homeButton.clicked.connect(show_home_screen)  # Determines action by slot passed in constructor
         self.searchKeyBar.textChanged.connect(self.search_table)  # Connect search bars to the search function
         self.searchCategoryBar.textChanged.connect(self.search_table)
 
@@ -243,11 +243,14 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         super().resizeEvent(event)
 
 
-class CondensedSalesLog(QWidget):
-    def __init__(self):
+# Condensed version of inventory table used to log quantity of items sold
+# Meant to be accessed only by sales screen and only return to sales screen
+class SalesLogScreen(QWidget):
+    def __init__(self, show_sales_screen):
         super().__init__()
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
+        self.show_sales_screen = show_sales_screen # Save slot as function
 
         self.top_layout = QHBoxLayout()
         top_spacer = QSpacerItem(40, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -271,6 +274,10 @@ class CondensedSalesLog(QWidget):
         self.bottom_layout.addWidget(self.save_button)
         bottom_spacer = QSpacerItem(40, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.bottom_layout.addItem(bottom_spacer)
+        icon.addFile(u"icons/x-square.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.cancel_button = QPushButton(icon, "Cancel", self)
+        self.cancel_button.clicked.connect(self.cancel_clicked)
+        self.bottom_layout.addWidget(self.cancel_button)
         self.main_layout.addLayout(self.bottom_layout)
 
 
@@ -314,10 +321,20 @@ class CondensedSalesLog(QWidget):
             self.tableWidget.setItem(row_index, 3, quantity_sold_cell)
 
 
-    # Exports data from table
+    # Exports data from table, then switches back to sales screen
     def save_clicked(self):
-        wb = tablereader.export_table(self.tableWidget)
+        if popups.save_confirmation_dialog():
+            wb = tablereader.export_table(self.tableWidget)
 
-        ws = wb.active
-        for row in ws.iter_rows(values_only=True):
-            print(row)
+            ws = wb.active
+            for row in ws.iter_rows(values_only=True):
+                print(row)
+
+            self.show_sales_screen()
+            del self # Deletes instance of SalesLogScreen
+
+    # Discards table data on confirmation and switches back to sales screen
+    def cancel_clicked(self):
+        if popups.cancel_confirmation_dialog():
+            self.show_sales_screen()
+            del self # Deletes instance of SalesLogScreen

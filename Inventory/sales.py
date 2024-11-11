@@ -4,11 +4,9 @@ from PySide6.QtGui import QIcon, Qt, QFont, QFontMetrics
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QListWidget, QSpacerItem, QSizePolicy,
                                QLabel, QDateEdit, QListWidgetItem)
 
-from inventory import CondensedSalesLog
-
 
 class SalesScreen(QWidget):
-    def __init__(self, switch_to_home):
+    def __init__(self, switch_to_home, switch_to_sales_log):
         super().__init__()
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
@@ -25,7 +23,7 @@ class SalesScreen(QWidget):
         spacer = QSpacerItem(40, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.nav_layout.addItem(spacer)
 
-        self.period_widget = SalesPeriodWidget()
+        self.period_widget = SalesPeriodWidget(switch_to_sales_log)
         self.nav_layout.addWidget(self.period_widget)
         self.main_layout.addLayout(self.nav_layout)
 
@@ -112,7 +110,7 @@ class SalesScreen(QWidget):
 
 
 class SalesPeriodWidget(QWidget):
-    def __init__(self):
+    def __init__(self,  switch_to_sales_log):
         super().__init__()
         self.layout = QHBoxLayout()
         self.label = QLabel("Sales Period:")
@@ -131,7 +129,7 @@ class SalesPeriodWidget(QWidget):
         icon = QIcon()
         icon.addFile(u"icons/list.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.log_sales_button = QPushButton(icon, "Log Sales", self)
-        self.log_sales_button.clicked.connect(self.log_sales_button_clicked)
+        self.log_sales_button.clicked.connect(switch_to_sales_log)
         self.layout.addWidget(self.log_sales_button)
         self.setLayout(self.layout)
 
@@ -147,7 +145,3 @@ class SalesPeriodWidget(QWidget):
         from_date = self.fromDateEdit.date().toString("MM/dd/yyyy")
         to_date = self.toDateEdit.date().toString("MM/dd/yyyy")
         return from_date, to_date
-
-    def log_sales_button_clicked(self):
-        popup = CondensedSalesLog()
-        popup.show()
