@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QTableWidgetItem
 import openpyxl
+from PySide6.QtWidgets import QTableWidgetItem
+
 
 # Exports a table widget's data to openpyxl workbook
 def export_table(table):
@@ -79,7 +80,7 @@ def import_workbook():
 
     """rows = ws.iter_rows(values_only=True)
     headers = [header for header in next(rows)] # Get header names"""
-    headers = test_headers
+    headers = test_headers2
     rows = test_rows2
 
     # Get table data

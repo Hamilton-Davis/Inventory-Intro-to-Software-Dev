@@ -1,6 +1,7 @@
-from PySide6.QtCore import QRect, Qt
-from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget
+from PySide6.QtCore import QRect, Qt, QDate, QSize
+from PySide6.QtGui import QColor, QIcon
+from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget, QVBoxLayout, QDateEdit, QSpacerItem, \
+    QSizePolicy, QHBoxLayout, QPushButton
 
 import popups
 import tablereader
@@ -40,7 +41,6 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # Add row data
         for row in table[1]:
             self.add_table_row(row)
-
 
     # Set table in default state
     def setup_table(self):
@@ -241,3 +241,83 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
         # Call the parent class resizeEvent to ensure proper handling
         super().resizeEvent(event)
+
+
+class CondensedSalesLog(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        self.top_layout = QHBoxLayout()
+        top_spacer = QSpacerItem(40, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.top_layout.addItem(top_spacer)
+        self.date_edit = QDateEdit()
+        self.date_edit.setDisplayFormat("MM/dd/yyyy")
+        self.date_edit.setCalendarPopup(True)
+        self.date_edit.setDate(QDate.currentDate())
+        self.top_layout.addWidget(self.date_edit)
+        self.main_layout.addLayout(self.top_layout)
+
+        self.tableWidget = QTableWidget()
+        self.setup_table()
+        self.main_layout.addWidget(self.tableWidget)
+
+        self.bottom_layout = QHBoxLayout()
+        icon = QIcon()
+        icon.addFile(u"icons/save.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.save_button = QPushButton(icon, "Save", self)
+        self.save_button.clicked.connect(self.save_clicked)
+        self.bottom_layout.addWidget(self.save_button)
+        bottom_spacer = QSpacerItem(40, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.bottom_layout.addItem(bottom_spacer)
+        self.main_layout.addLayout(self.bottom_layout)
+
+
+    def setup_table(self):
+        # Import table data
+        self.import_table()
+
+        # Set table formatting
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+
+    # Imports items' name, category, and price
+    def import_table(self):
+        table = tablereader.import_workbook()
+
+        # Get the index of the required columns
+        item = table[0].index("Item")
+        category = table[0].index("Category")
+        price = table[0].index("Price")
+
+        # Create rows and columns
+        self.tableWidget.setRowCount(len(table[1]))
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setHorizontalHeaderLabels(["Item", "Category", "Price", "Quantity Sold"])
+
+        # Add row data, lock "Item", "Category", and "Price" columns
+        for row_index, row in enumerate(table[1]):
+            item_cell = QTableWidgetItem(row[item])
+            item_cell.setFlags(item_cell.flags() & ~Qt.ItemIsEditable)
+            self.tableWidget.setItem(row_index, 0, item_cell)
+
+            category_cell = QTableWidgetItem(row[category])
+            category_cell.setFlags(category_cell.flags() & ~Qt.ItemIsEditable)
+            self.tableWidget.setItem(row_index, 1, category_cell)
+
+            price_cell = QTableWidgetItem(row[price])
+            price_cell.setFlags(price_cell.flags() & ~Qt.ItemIsEditable)
+            self.tableWidget.setItem(row_index, 2, price_cell)
+
+            quantity_sold_cell = QTableWidgetItem("0")
+            self.tableWidget.setItem(row_index, 3, quantity_sold_cell)
+
+
+    # Exports data from table
+    def save_clicked(self):
+        wb = tablereader.export_table(self.tableWidget)
+
+        ws = wb.active
+        for row in ws.iter_rows(values_only=True):
+            print(row)

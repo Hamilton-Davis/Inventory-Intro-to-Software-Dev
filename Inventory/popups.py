@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QMessageBox
 
+
 # Confirmation message for delete action
 def delete_confirmation_dialog():
     msg = "This action cannot be undone. \nAre you sure you want to delete?"
