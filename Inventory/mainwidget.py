@@ -104,7 +104,7 @@ class MainWidget(QWidget):
     # Changes displayed widget to sales_log_screen
     def show_sales_log_screen(self):
         # Create temporary sales_log_screen (destroyed when switched away from)
-        sales_log_screen = SalesLogScreen(self.show_home_screen)
+        sales_log_screen = SalesLogScreen(self.show_sales_screen)
         self.stackedWidget.addWidget(sales_log_screen)
         self.stackedWidget.setCurrentWidget(sales_log_screen)
 
