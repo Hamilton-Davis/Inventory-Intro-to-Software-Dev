@@ -1,9 +1,10 @@
+from PySide6.QtCore import Qt, Signal, QRect
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, Signal, QSize, QRect
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QSpacerItem, QSizePolicy, \
     QLineEdit, QMessageBox, QCheckBox, QGridLayout
-from popups import confirmation_dialog  # Import confirmation dialog function
+
 import dataUtils  # Import utility functions
+from popups import confirmation_dialog  # Import confirmation dialog function
 
 
 class SettingsWidget(QWidget):
@@ -136,7 +137,8 @@ class SettingsWidget(QWidget):
             return
         if new_username == confirm_username:
             # Confirmation prompt
-            if not confirmation_dialog("Are you sure you want to change the username?", "Confirm Username Change"):
+            if not confirmation_dialog("Are you sure you want to change the username?",
+                                       "Confirm Username Change", QMessageBox.Question):
                 # Clear the input fields
                 self.change_username_input.clear()
                 self.confirm_username_input.clear()
@@ -162,7 +164,8 @@ class SettingsWidget(QWidget):
             return
         if new_password == confirm_password:
             # Confirmation prompt
-            if not confirmation_dialog("Are you sure you want to change the password?", "Confirm Password Change"):
+            if not confirmation_dialog("Are you sure you want to change the password?",
+                                       "Confirm Password Change", QMessageBox.Question):
                 # Clear the input fields
                 self.change_password_input.clear()
                 self.confirm_password_input.clear()
@@ -181,7 +184,8 @@ class SettingsWidget(QWidget):
 
     # Method to reset credentials to default
     def reset_to_default(self):
-        if not confirmation_dialog("Are you sure you want to change to default credentials?", "Confirm Default Credentials"):
+        if not confirmation_dialog("Are you sure you want to change to default credentials?",
+                                   "Confirm Default Credentials", QMessageBox.Question):
             return  # Exit if the user cancels
         default_username = "admin"
         default_password = "password"

@@ -41,8 +41,12 @@ class CentralWidget(QWidget):
         self.button_layout = QHBoxLayout()
 
         # Initialize and configure buttons
-        self.button1 = QPushButton("Check Inventory", self)
+        font = QFont()
+        font.setPointSize(16)
+        self.button1 = QPushButton("Inventory", self)
         self.button1.setFixedSize(200, 150)  # Set button size
+        self.button1.setFont(font)
+        self.button1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         icon1 = QIcon()
         icon1.addFile(u"icons/table.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.button1.setIcon(icon1)
@@ -50,8 +54,10 @@ class CentralWidget(QWidget):
         self.button1.clicked.connect(self.inventory_callback)
         self.button_layout.addWidget(self.button1)  # Add button to layout
 
-        self.button2 = QPushButton("Sales Analysis", self)
+        self.button2 = QPushButton("Sales", self)
         self.button2.setFixedSize(200, 150)
+        self.button2.setFont(font)
+        self.button2.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         icon2 = QIcon()
         icon2.addFile(u"icons/dollar-sign.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.button2.setIcon(icon2)
@@ -60,6 +66,8 @@ class CentralWidget(QWidget):
 
         self.button3 = QPushButton("Settings", self)
         self.button3.setFixedSize(200, 150)
+        self.button3.setFont(font)
+        self.button3.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         icon3 = QIcon()
         icon3.addFile(u"icons/settings.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.button3.setIcon(icon3)
