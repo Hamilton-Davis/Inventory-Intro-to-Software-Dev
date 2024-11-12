@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SalesPeriodWidget</class>
+ <widget class="QWidget" name="SalesPeriodWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>411</width>
+    <height>45</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QLabel" name="salesPeriodLabel">
+     <property name="text">
+      <string>Sales Period</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDateEdit" name="toDateEdit">
+     <property name="currentSection">
+      <enum>QDateTimeEdit::Section::MonthSection</enum>
+     </property>
+     <property name="displayFormat">
+      <string>MM/dd/yyyy</string>
+     </property>
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+     <property name="timeSpec">
+      <enum>Qt::TimeSpec::LocalTime</enum>
+     </property>
+     <property name="date">
+      <date>
+       <year>2000</year>
+       <month>1</month>
+       <day>31</day>
+      </date>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDateEdit" name="fromDateEdit">
+     <property name="currentSection">
+      <enum>QDateTimeEdit::Section::MonthSection</enum>
+     </property>
+     <property name="displayFormat">
+      <string>MM/dd/yyyy</string>
+     </property>
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+     <property name="timeSpec">
+      <enum>Qt::TimeSpec::LocalTime</enum>
+     </property>
+     <property name="date">
+      <date>
+       <year>2000</year>
+       <month>1</month>
+       <day>1</day>
+      </date>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="logSalesButton">
+     <property name="text">
+      <string>Log Sales</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>../Inventory/icons/list.svg</normaloff>../Inventory/icons/list.svg</iconset>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

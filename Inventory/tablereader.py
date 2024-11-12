@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QTableWidgetItem
 import openpyxl
+from PySide6.QtWidgets import QTableWidgetItem
+
 
 # Exports a table widget's data to openpyxl workbook
 def export_table(table):
@@ -56,22 +57,31 @@ test_rows = [
     ["Isla's Instruments", 'Music', 5, 100.00, 180.00, 'No', '2024-08-18', 'isla@example.com'],
     ["Jack's Jackets", 'Apparel', 12, 35.00, 60.00, 'Yes', '2024-04-20', 'jack@example.com']
 ]
-test_headers2 = []
-test_rows2 = []
+test_headers2 = ['Category','Item','InStock','Purchased','Price','Availability','Entry Date','Link']
+test_rows2 = [
+    ["Baked Goods", "Bread Rolls", 0, 27, 12.99, "O", 45560],
+    ["Chemicals", "Oxygen Tank", 0, 3, 49.99, "O", 45505],
+    ["Kitchen", "Knife Set", 5, 0, 78.99, "X", 45556],
+    ["Toys", "Bubble Blower", 5, 32, 22.49, "X", 45560],
+    ["Toys", "Teddy Bear", 32, 15, 5.79, "X", 45554],
+    ["Furnishing", "Pumpkin Spice Candle", 32, 42, 16.99, "X", 45565, "https://www.etsy.com/listing/1482214698/pumpkin-spice-soy-candle-pumpkin-maple?ga_order=most_relevant&ga_search_type=all&ga_view_type=gallery&ga_search_query=pumpkin+spice+candle&ref=sr_gallery-1-2&frs=1&content_source=839d2fa207add2501003a7398c3a02478c65a35a%253A1482214698&organic_search_click=1"]
+]
 
 # Imports data from an openpyxl workbook into a tuple in format ([headers], [data])
 def import_workbook():
-    # USE FUNCTION FROM EXCEL HANDLING TO GET WORKBOOK
+    """# USE FUNCTION FROM EXCEL HANDLING TO GET WORKBOOK
     # Temp workbook
     wb = openpyxl.Workbook()
 
     ws = wb.active
     ws.append(test_headers)
     for row in test_rows:
-        ws.append(row)
+        ws.append(row)"""
 
-    rows = ws.iter_rows(values_only=True)
-    headers = [header for header in next(rows)] # Get header names
+    """rows = ws.iter_rows(values_only=True)
+    headers = [header for header in next(rows)] # Get header names"""
+    headers = test_headers2
+    rows = test_rows2
 
     # Get table data
     data = []
