@@ -39,9 +39,33 @@ def getNewestFile(folderPath):
     return newestfile
 
 
-inventoryList = pd.read_excel(getNewestFile(folderPath))
+inventoryList = pd.read_csv(getNewestFile(folderPath))
 
 pass
 print(inventoryList)
 
-# implement reading file to dataframe
+
+
+#ADDING NEW ITEMS TO FILE
+# take new entries 
+# Additional rows as a DataFrame
+new_rows = pd.DataFrame({
+    'Category': ['furniture', 'toy'],
+    'Item Name': ['sofa', 'puzzle'],
+    'Stock': [10, 30],
+    'Number on Order': [15, 60],
+    'Is Available': ['O', 'X']
+})
+
+# Concatenate
+inventoryList = pd.concat([inventoryList, new_rows], ignore_index=True)
+
+print(inventoryList)
+
+#EDITING EXISTING ITEMS
+# Update 'Stock' for the row where 'Item Name' is 'apples'
+# this can be done for any specific item name
+inventoryList.loc[inventoryList['Item Name'] == 'apples', 'Stock'] = 82
+
+print(inventoryList)
+
