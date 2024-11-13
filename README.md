@@ -25,6 +25,7 @@ Overview of Software,
     
     pip install PySide6
     pip install openpyxl
+    pip install cryptography.fernet
 
   To Run:
     
