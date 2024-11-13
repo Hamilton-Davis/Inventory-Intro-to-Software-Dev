@@ -33,7 +33,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # Clear pre-set columns
         self.tableWidget.setColumnCount(0)
 
-        table = tablereader.import_db(tablereader.get_db_filename())
+        table = tablereader.import_db()
         # Add columns titles
         for column in table[0]:
             self.add_table_column(column)
@@ -134,7 +134,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
     # Saves table widget's data to a .xlsx file
     def saveButton_clicked(self):
-        tablereader.export_table(self.tableWidget, tablereader.get_db_filename())
+        tablereader.export_table(self.tableWidget)
 
 
     def searchKeyBar_textChanged(self):

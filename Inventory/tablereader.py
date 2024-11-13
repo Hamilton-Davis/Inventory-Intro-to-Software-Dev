@@ -77,7 +77,8 @@ def read_table(table):
 def import_db(db_filename=get_db_filename()):
     if not os.path.exists(db_filename):
         print("Database file not found.")
-        return [], []
+        default_headers = ['Name', 'Category', 'Quantity', 'Cost', 'Sale Price', 'Available', 'Date Stocked', 'Contact']
+        return default_headers, []
 
     conn = sqlite3.connect(db_filename)
     cursor = conn.cursor()
@@ -87,6 +88,7 @@ def import_db(db_filename=get_db_filename()):
     headers = [info[1] for info in cursor.fetchall()]
     headers.remove('id')
     headers = [header.capitalize() for header in headers]
+    print(headers)
 
     # Get data rows
     cursor.execute("SELECT name, category, quantity, cost, sale_price, available, date_stocked, contact FROM items")
