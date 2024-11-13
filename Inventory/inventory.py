@@ -33,7 +33,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # Clear pre-set columns
         self.tableWidget.setColumnCount(0)
 
-        table = tablereader.import_workbook()
+        table = tablereader.import_from_db(tablereader.get_db_filename())
         # Add columns titles
         for column in table[0]:
             self.add_table_column(column)
@@ -134,13 +134,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
     # Saves table widget's data to a .xlsx file
     def saveButton_clicked(self):
-        wb = tablereader.export_table(self.tableWidget)
-
-        ws = wb.active
-        for row in ws.iter_rows(values_only=True):
-            print(row)
-
-        # ADD FUNCTION TO WRITE WORKBOOK TO FILE HERE
+        tablereader.export_table(self.tableWidget, tablereader.get_db_filename())
 
 
     def searchKeyBar_textChanged(self):
@@ -324,12 +318,6 @@ class SalesLogScreen(QWidget):
     # Exports data from table, then switches back to sales screen
     def save_clicked(self):
         if popups.save_confirmation_dialog():
-            wb = tablereader.export_table(self.tableWidget)
-
-            ws = wb.active
-            for row in ws.iter_rows(values_only=True):
-                print(row)
-
             self.show_sales_screen()
             del self # Deletes instance of SalesLogScreen
 
