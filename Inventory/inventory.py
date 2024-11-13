@@ -33,7 +33,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # Clear pre-set columns
         self.tableWidget.setColumnCount(0)
 
-        table = tablereader.import_from_db(tablereader.get_db_filename())
+        table = tablereader.import_db(tablereader.get_db_filename())
         # Add columns titles
         for column in table[0]:
             self.add_table_column(column)
@@ -285,17 +285,17 @@ class SalesLogScreen(QWidget):
 
     # Imports items' name, category, and price
     def import_table(self):
-        table = tablereader.import_workbook()
+        table = tablereader.import_db()
 
         # Get the index of the required columns
-        item = table[0].index("Item")
+        item = table[0].index("Name")
         category = table[0].index("Category")
-        price = table[0].index("Price")
+        price = table[0].index("Sale_price")
 
         # Create rows and columns
         self.tableWidget.setRowCount(len(table[1]))
         self.tableWidget.setColumnCount(4)
-        self.tableWidget.setHorizontalHeaderLabels(["Item", "Category", "Price", "Quantity Sold"])
+        self.tableWidget.setHorizontalHeaderLabels(["Name", "Category", "Sale_price", "Quantity Sold"])
 
         # Add row data, lock "Item", "Category", and "Price" columns
         for row_index, row in enumerate(table[1]):

@@ -31,7 +31,7 @@ def create_table_if_not_exists(conn):
     conn.commit()
 
 # Function to export table widget data to a database
-def export_table(table, db_filename):
+def export_table(table, db_filename=get_db_filename()):
     new_file = not os.path.exists(db_filename)
     conn = sqlite3.connect(db_filename)
 
@@ -74,7 +74,7 @@ def read_table(table):
     return headers, data
 
 # Function to import data from a database
-def import_from_db(db_filename):
+def import_db(db_filename=get_db_filename()):
     if not os.path.exists(db_filename):
         print("Database file not found.")
         return [], []
