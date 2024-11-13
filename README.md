@@ -26,6 +26,8 @@ Overview of Software,
     pip install PySide6
     pip install openpyxl
     pip install cryptography.fernet
+    pip install sqlite3
+    pip install os
 
   To Run:
     
