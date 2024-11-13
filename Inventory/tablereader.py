@@ -87,8 +87,9 @@ def import_db(db_filename=get_db_filename()):
     cursor.execute("PRAGMA table_info(items)")
     headers = [info[1] for info in cursor.fetchall()]
     headers.remove('id')
-    headers = [header.capitalize() for header in headers]
-    print(headers)
+    headers = [header.replace('_', ' ') for header in headers] # Replace underscores with spaces
+    headers = [header.title() for header in headers] # Put headers in Title Case
+
 
     # Get data rows
     cursor.execute("SELECT name, category, quantity, cost, sale_price, available, date_stocked, contact FROM items")

@@ -290,14 +290,15 @@ class SalesLogScreen(QWidget):
         # Get the index of the required columns
         item = table[0].index("Name")
         category = table[0].index("Category")
-        price = table[0].index("Sale_price")
+        cost = table[0].index("Cost")
+        price = table[0].index("Sale Price")
 
         # Create rows and columns
         self.tableWidget.setRowCount(len(table[1]))
-        self.tableWidget.setColumnCount(4)
-        self.tableWidget.setHorizontalHeaderLabels(["Name", "Category", "Sale_price", "Quantity Sold"])
+        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setHorizontalHeaderLabels(["Name", "Category", "Cost", "Sale Price", "Quantity Sold"])
 
-        # Add row data, lock "Item", "Category", and "Price" columns
+        # Add row data, lock "Item", "Category", "Cost". and "Sale Price" columns
         for row_index, row in enumerate(table[1]):
             item_cell = QTableWidgetItem(row[item])
             item_cell.setFlags(item_cell.flags() & ~Qt.ItemIsEditable)
@@ -306,6 +307,9 @@ class SalesLogScreen(QWidget):
             category_cell = QTableWidgetItem(row[category])
             category_cell.setFlags(category_cell.flags() & ~Qt.ItemIsEditable)
             self.tableWidget.setItem(row_index, 1, category_cell)
+
+            cost_cell = QTableWidgetItem(row[cost])
+            cost_cell.setFlags(cost_cell.flags() & ~Qt.ItemIsEditable)
 
             price_cell = QTableWidgetItem(row[price])
             price_cell.setFlags(price_cell.flags() & ~Qt.ItemIsEditable)
