@@ -13,6 +13,9 @@
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, QSize)
 from PySide6.QtGui import (QFont, QIcon)
 from PySide6.QtWidgets import (QAbstractItemView, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem)
+import os
+from PySide6.QtSvg import QSvgRenderer
+
 
 
 class Ui_InventoryWidget(object):

@@ -1,9 +1,11 @@
 import os
 from cryptography.fernet import Fernet
 
-# Paths to the encryption keys for username and password
+# Paths to the encryption keys for username, password, hint, and answer
 USERNAME_KEY_FILE_PATH = "username.key"
 PASSWORD_KEY_FILE_PATH = "password.key"
+HINT_KEY_FILE_PATH = "hint.key"
+ANSWER_KEY_FILE_PATH = "answer.key"
 
 
 def generate_key(file_path):
@@ -25,9 +27,11 @@ def load_key(file_path):
         return key_file.read()
 
 
-# Load separate ciphers for username and password encryption
+# Load separate ciphers for username, password, hint, and answer encryption
 username_cipher = Fernet(load_key(USERNAME_KEY_FILE_PATH))
 password_cipher = Fernet(load_key(PASSWORD_KEY_FILE_PATH))
+hint_cipher = Fernet(load_key(HINT_KEY_FILE_PATH))
+answer_cipher = Fernet(load_key(ANSWER_KEY_FILE_PATH))
 
 
 def encrypt_username(data):
@@ -64,3 +68,39 @@ def decrypt_password(encrypted_data):
     :return: Decrypted password (str).
     """
     return password_cipher.decrypt(encrypted_data).decode()
+
+
+def encrypt_hint(data):
+    """
+    Encrypt the security hint using the hint-specific cipher.
+    :param data: Hint to be encrypted (str).
+    :return: Encrypted hint (bytes).
+    """
+    return hint_cipher.encrypt(data.encode())
+
+
+def decrypt_hint(encrypted_data):
+    """
+    Decrypt the encrypted security hint.
+    :param encrypted_data: Encrypted hint (bytes).
+    :return: Decrypted hint (str).
+    """
+    return hint_cipher.decrypt(encrypted_data).decode()
+
+
+def encrypt_answer(data):
+    """
+    Encrypt the answer to the security hint using the answer-specific cipher.
+    :param data: Answer to be encrypted (str).
+    :return: Encrypted answer (bytes).
+    """
+    return answer_cipher.encrypt(data.encode())
+
+
+def decrypt_answer(encrypted_data):
+    """
+    Decrypt the encrypted answer to the security hint.
+    :param encrypted_data: Encrypted answer (bytes).
+    :return: Decrypted answer (str).
+    """
+    return answer_cipher.decrypt(encrypted_data).decode()
