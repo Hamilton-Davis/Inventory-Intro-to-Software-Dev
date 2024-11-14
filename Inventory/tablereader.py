@@ -2,8 +2,19 @@ import datetime
 import os
 import sqlite3
 
+from enum import Enum
 from PySide6.QtWidgets import QTableWidgetItem
 
+class HeaderIndex(Enum):
+    NAME = 0
+    CATEGORY = 1
+    QUANTITY = 2
+    COST = 3
+    SALE_PRICE = 4
+    AVAILABLE = 5
+    DATE_STOCKED = 6
+    CONTACT = 7
+    QNT_SOLD = 4
 
 # Function to create a database file with the current date or a specified date
 def get_db_filename(date_offset=0):
@@ -81,7 +92,7 @@ def read_table(table):
 def import_db(db_filename=get_db_filename()):
     if not os.path.exists(db_filename):
         print("Database file not found.")
-        default_headers = ['Name', 'Category', 'Quantity', 'Cost', 'Sale Price', 'Available', 'Date Stocked', 'Contact']
+        default_headers = ['Name', 'Category', 'Quantity', 'Cost ($)', 'Sale Price ($)', 'Available', 'Date Stocked', 'Contact']
         return default_headers, []
 
     conn = sqlite3.connect(db_filename)
@@ -89,10 +100,7 @@ def import_db(db_filename=get_db_filename()):
 
     # Get header names
     cursor.execute("PRAGMA table_info(items)")
-    headers = [info[1] for info in cursor.fetchall()]
-    headers.remove('id')
-    headers = [header.replace('_', ' ') for header in headers] # Replace underscores with spaces
-    headers = [header.title() for header in headers] # Put headers in Title Case
+    default_headers = ['Name', 'Category', 'Quantity', 'Cost ($)', 'Sale Price ($)', 'Available', 'Date Stocked', 'Contact']
 
 
     # Get data rows
@@ -100,7 +108,7 @@ def import_db(db_filename=get_db_filename()):
     data = cursor.fetchall()
 
     conn.close()
-    return headers, data
+    return default_headers, data
 
 # Test data insertion
 db_filename = get_db_filename()
