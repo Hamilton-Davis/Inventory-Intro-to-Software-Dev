@@ -1,7 +1,7 @@
 import datetime
 import os
 import sqlite3
-
+import pandas as pd
 from PySide6.QtWidgets import QTableWidgetItem
 
 
@@ -106,3 +106,40 @@ db_filename = get_db_filename()
 # headers, data = import_from_db(db_filename)
 # print("Headers:", headers)
 # print("Data:", data)
+
+# takes two dates and returns every item in the table between the specified dates
+def between_two_dates(db_filename, start_date, end_date):
+    conn = sqlite3.connect(db_filename)
+    # SQL likes dates in Year/month/day format
+    query = f"""
+            SELECT *
+            FROM your_table
+            WHERE strftime('%Y-%m-%d', Date_Entered) BETWEEN '{start_date}' AND '{end_date}'; 
+            """
+    # this query sorts from our stored month/day/year into SQL friendly year/month/day
+    
+    # stores our results in a dataframe to be returned
+    dataframe = pd.read_sql_query(query, conn)
+    conn.close()
+    return dataframe
+
+# this will return a dataframe with items grouped by name
+# these should be formatted as
+#   Item Name        Price                  Quantity                 Sales              Date Entered
+#   item1       [price1, price2]        [count1, count2]        [sales1, sales2]      [entry1, entry2]
+#   item2       [price1, price2]        [count1, count2]        [sales1, sales2]      [entry1, entry2]
+#   item3       [price1, price2]        [count1, count2]        [sales1, sales2]      [entry1, entry2]
+#
+# this should allow us to pull by item name to new lists and keep all relavent data
+# dataframe param is the dataframe created by filtering database table
+def sales_data(dataframe):
+   # Group by "Item Name" and specify aggregation for specific columns
+    grouped_df = dataframe.groupby('Item Name').agg({
+        'Price': list,                 # Aggregate Price into a list
+        'Quantity': list,              # Aggregate Quantity into a list
+        'Sales': list,                 # Aggregate Sales into a list
+        'Date Entered': list,          # Aggregate Date Entered into a list
+    }).reset_index()
+    return grouped_df # returns our grouped dataframe
+
+
