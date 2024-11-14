@@ -37,6 +37,10 @@ def export_table(table, db_filename=get_db_filename()):
 
     if new_file:
         create_table_if_not_exists(conn)
+    else:
+        # Clear the existing table to overwrite data
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM items')
 
     cursor = conn.cursor()
     headers, data = read_table(table)
