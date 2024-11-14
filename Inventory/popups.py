@@ -3,9 +3,9 @@ from PySide6.QtWidgets import QMessageBox
 # Creates confirmation popup with yes/no options
 def confirmation_dialog(msg, title="", icon=QMessageBox.NoIcon):
     popup = QMessageBox()
-    if title: popup.setWindowTitle(title) # Add title if given
+    popup.setWindowTitle(title)
     popup.setText(msg)
-    if icon: popup.setIcon(icon) # Add icon if given
+    popup.setIcon(icon)
 
     #Get response
     popup.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
@@ -36,6 +36,7 @@ def cancel_confirmation_dialog():
     # Get confirmation
     return confirmation_dialog(msg, title, icon)
 
+
 # Confirmation for save action
 def save_confirmation_dialog():
     msg = "Saving will close this screen. \nAre you sure the entered sales are correct?"
@@ -44,3 +45,16 @@ def save_confirmation_dialog():
 
     # Get confirmation
     return confirmation_dialog(msg, title, icon)
+
+
+# Creates error popup with an "Ok" button
+def error_dialog(msg, title="", icon=QMessageBox.Critical):
+    popup = QMessageBox()
+    popup.setWindowTitle(title)
+    popup.setText(msg)
+    popup.setIcon(icon)
+
+    # Display error message
+    popup.setStandardButtons(QMessageBox.Ok)
+    popup.setDefaultButton(QMessageBox.Ok)
+    popup.exec_()

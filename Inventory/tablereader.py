@@ -1,91 +1,141 @@
-import openpyxl
-from PySide6.QtWidgets import QTableWidgetItem
+import datetime
+import sqlite3
+import pandas as pd
+from enum import Enum
 
 
-# Exports a table widget's data to openpyxl workbook
-def export_table(table):
-    # Create workbook and select active worksheet
-    wb = openpyxl.Workbook()
-    ws = wb.active
+class HeaderIndex(Enum):
+    NAME = 0
+    CATEGORY = 1
+    QUANTITY = 2
+    COST = 3
+    SALE_PRICE = 4
+    AVAILABLE = 5
+    DATE_STOCKED = 6
+    CONTACT = 7
+    LOG_QNT_SOLD = 4
 
-    # Read table
-    (headers, data) = read_table(table)
+class DatabaseManager:
+    DB_FILE = 'items.db'
 
-    # Write headers to workbook
-    ws.append(headers)
+    @staticmethod
+    def connect():
+        return sqlite3.connect(DatabaseManager.DB_FILE)
 
-    # Write rows to workbook
-    for row in data:
-        ws.append(row)
+    @staticmethod
+    def create_table(date=None):
+        table_name = DatabaseManager.get_table_name(date)
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+        cursor.execute(f'''
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                category TEXT,
+                quantity INTEGER,
+                cost REAL,
+                sale_price REAL,
+                available BOOLEAN,
+                date_stocked TEXT,
+                contact TEXT,
+                qnt_sold INTEGER DEFAULT 0
+            )
+        ''')
+        conn.commit()
+        conn.close()
 
-    return wb
-
-# Reads a table widget's data into a tuple in format ([headers], [data])
-def read_table(table):
-    headers = []
-    # Get header names
-    for column in range(table.columnCount()):
-        if table.horizontalHeaderItem(column) is None:
-            table.setHorizontalHeaderItem(column, QTableWidgetItem(""))
-        headers.append(table.horizontalHeaderItem(column).text())
-
-    # Get table data
-    data = []
-    for row in range(table.rowCount()):
-        row_data = []
-        for column in range(table.columnCount()):
-            if table.item(row, column) is None:
-                table.setItem(row, column, QTableWidgetItem(""))
-            row_data.append(table.item(row, column).text())
-
-        data.append(row_data)
-
-    return headers, data
+    @staticmethod
+    def get_table_name(date=None):
+        if date is None:
+            date = datetime.datetime.now()
+        return f"items_{date.strftime('%Y_%m_%d')}"
 
 
-#TEST DATA
-test_headers = ['Name', 'Category', 'Quantity', 'Cost', 'Sale Price', 'Available', 'Date Stocked', 'Contact']
-test_rows = [
-    ["Alice's Apples", 'Fruit', 50, 1.50, 3.00, 'Yes', '2024-09-12', 'alice@example.com'],
-    ["Bob's Books", 'Literature', 30, 12.00, 18.00, 'No', '2023-11-01', 'bob@example.com'],
-    ["Charlie's Chairs", 'Furniture', 10, 45.00, 80.00, 'Yes', '2024-06-22', 'charlie@example.com'],
-    ["Dan's Drills", 'Tools', 20, 25.00, 40.00, 'Yes', '2024-02-15', 'dan@example.com'],
-    ["Eve's Earrings", 'Jewelry', 100, 5.00, 12.00, 'Yes', '2024-01-10', 'eve@example.com'],
-    ["Frank's Frames", 'Art Supplies', 15, 8.00, 15.00, 'Yes', '2024-05-03', 'frank@example.com'],
-    ["Gina's Games", 'Toys', 40, 10.00, 20.00, 'No', '2024-07-12', 'gina@example.com'],
-    ["Harry's Hats", 'Apparel', 25, 7.00, 14.00, 'Yes', '2024-03-29', 'harry@example.com'],
-    ["Isla's Instruments", 'Music', 5, 100.00, 180.00, 'No', '2024-08-18', 'isla@example.com'],
-    ["Jack's Jackets", 'Apparel', 12, 35.00, 60.00, 'Yes', '2024-04-20', 'jack@example.com']
-]
-test_headers2 = ['Category','Item','InStock','Purchased','Price','Availability','Entry Date','Link']
-test_rows2 = [
-    ["Baked Goods", "Bread Rolls", 0, 27, 12.99, "O", 45560],
-    ["Chemicals", "Oxygen Tank", 0, 3, 49.99, "O", 45505],
-    ["Kitchen", "Knife Set", 5, 0, 78.99, "X", 45556],
-    ["Toys", "Bubble Blower", 5, 32, 22.49, "X", 45560],
-    ["Toys", "Teddy Bear", 32, 15, 5.79, "X", 45554],
-    ["Furnishing", "Pumpkin Spice Candle", 32, 42, 16.99, "X", 45565, "https://www.etsy.com/listing/1482214698/pumpkin-spice-soy-candle-pumpkin-maple?ga_order=most_relevant&ga_search_type=all&ga_view_type=gallery&ga_search_query=pumpkin+spice+candle&ref=sr_gallery-1-2&frs=1&content_source=839d2fa207add2501003a7398c3a02478c65a35a%253A1482214698&organic_search_click=1"]
-]
+    @staticmethod
+    def get_most_recent_table():
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'items_%' ORDER BY name DESC LIMIT 1")
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else None
 
-# Imports data from an openpyxl workbook into a tuple in format ([headers], [data])
-def import_workbook():
-    """# USE FUNCTION FROM EXCEL HANDLING TO GET WORKBOOK
-    # Temp workbook
-    wb = openpyxl.Workbook()
 
-    ws = wb.active
-    ws.append(test_headers)
-    for row in test_rows:
-        ws.append(row)"""
+    @staticmethod
+    def export_table(table, date=None):
+        table_name = DatabaseManager.get_table_name(date)
+        DatabaseManager.create_table(date)
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+        headers, data = DatabaseManager.read_table(table)
 
-    """rows = ws.iter_rows(values_only=True)
-    headers = [header for header in next(rows)] # Get header names"""
-    headers = test_headers2
-    rows = test_rows2
+        # Clear existing table data before exporting
+        cursor.execute(f'DELETE FROM {table_name}')
 
-    # Get table data
-    data = []
-    for row in rows:
-        data.append(row)
+        for row in data:
+            cursor.execute(f'''
+                INSERT INTO {table_name} (name, category, quantity, cost, sale_price, available, date_stocked, contact, qnt_sold)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', row)
 
-    return headers, data
+        conn.commit()
+        conn.close()
+
+
+    @staticmethod
+    def read_table(table):
+        headers = [table.horizontalHeaderItem(col).text() if table.horizontalHeaderItem(col) else "" for col in range(table.columnCount())]
+        data = [[table.item(row, col).text() if table.item(row, col) else "" for col in range(table.columnCount())] for row in range(table.rowCount())]
+        return headers, data
+
+
+    @staticmethod
+    def import_db(date=None):
+        table_name = DatabaseManager.get_table_name(date)
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+
+        # Check if the table exists in the database
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+        table_exists = cursor.fetchone() is not None
+
+        # Default headers and empty data to return if table does not exist
+        default_headers = ['Name', 'Category', 'Quantity', 'Cost ($)', 'Sale Price ($)', 'Available', 'Date Stocked',
+                           'Contact', 'Qnt Sold']
+
+        if not table_exists:
+            # If the table does not exist, return headers and empty data
+            conn.close()
+            return default_headers, []
+
+        # If the table exists, retrieve data from it
+        cursor.execute(
+            f"SELECT name, category, quantity, cost, sale_price, available, date_stocked, contact, qnt_sold FROM {table_name}")
+        data = cursor.fetchall()
+
+        conn.close()
+        return default_headers, data
+
+
+    @staticmethod
+    def between_two_dates(start_date, end_date):
+        table_name = DatabaseManager.get_table_name()
+        conn = DatabaseManager.connect()
+        query = f"""
+            SELECT * FROM {table_name}
+            WHERE strftime('%Y-%m-%d', date_stocked) BETWEEN '{start_date}' AND '{end_date}';
+        """
+        dataframe = pd.read_sql_query(query, conn)
+        conn.close()
+        return dataframe
+
+
+    @staticmethod
+    def sales_data(dataframe):
+        grouped_df = dataframe.groupby('name').agg({
+            'cost': list,
+            'quantity': list,
+            'sale_price': list,
+            'date_stocked': list,
+        }).reset_index()
+        return grouped_df

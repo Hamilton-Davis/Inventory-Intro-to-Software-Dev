@@ -3,8 +3,9 @@ from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget, QVBoxLayout, QDateEdit, QSpacerItem, \
     QSizePolicy, QHBoxLayout, QPushButton
 
+
 import popups
-import tablereader
+from tablereader import DatabaseManager, HeaderIndex
 from widgetdesigners import Ui_InventoryWidget
 
 
@@ -33,7 +34,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # Clear pre-set columns
         self.tableWidget.setColumnCount(0)
 
-        table = tablereader.import_workbook()
+        table = DatabaseManager.import_db()
         # Add columns titles
         for column in table[0]:
             self.add_table_column(column)
@@ -132,15 +133,43 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
                 self.remove_table_row(row)
 
 
-    # Saves table widget's data to a .xlsx file
+    # Checks if table widget's data can be saved in valid format
+    # Returns an error message with False cases
+    def valid_save(self):
+        try:
+            item_names = set()
+
+            for row in range(self.tableWidget.rowCount()):
+                item_name = self.tableWidget.item(row, HeaderIndex.NAME.value).text()
+
+                # Check if the item name is empty or set to a placeholder value
+                if item_name in ["", "New Item"]:
+                    return False, "Item names must be set before saving."
+
+                # Check for duplicate item names
+                if item_name in item_names:
+                    return False, f"Duplicate item name found: '{item_name}'. \nEach item must have a unique name."
+                item_names.add(item_name)
+
+                # Validate numerical values in specific columns
+                for col in [HeaderIndex.COST, HeaderIndex.SALE_PRICE, HeaderIndex.QUANTITY]:
+                    float(self.tableWidget.item(row, col.value).text())
+
+        except ValueError:
+            return False, "File cannot be saved if values in Quantity, Cost, or Sale Price columns are not numerical values."
+
+        return True, ""
+
+
+    # Saves table widget's data to file
     def saveButton_clicked(self):
-        wb = tablereader.export_table(self.tableWidget)
-
-        ws = wb.active
-        for row in ws.iter_rows(values_only=True):
-            print(row)
-
-        # ADD FUNCTION TO WRITE WORKBOOK TO FILE HERE
+        save_test = self.valid_save()
+        if save_test[0]:
+            DatabaseManager.export_table(self.tableWidget)
+            self.tableWidget.setRowCount(0)
+            self.setup_table()
+        else:
+            popups.error_dialog(save_test[1], "Save Error")
 
 
     def searchKeyBar_textChanged(self):
@@ -291,19 +320,20 @@ class SalesLogScreen(QWidget):
 
     # Imports items' name, category, and price
     def import_table(self):
-        table = tablereader.import_workbook()
+        table = DatabaseManager.import_db()
 
         # Get the index of the required columns
-        item = table[0].index("Item")
+        item = table[0].index("Name")
         category = table[0].index("Category")
-        price = table[0].index("Price")
+        cost = table[0].index("Cost ($)")
+        price = table[0].index("Sale Price ($)")
 
         # Create rows and columns
         self.tableWidget.setRowCount(len(table[1]))
-        self.tableWidget.setColumnCount(4)
-        self.tableWidget.setHorizontalHeaderLabels(["Item", "Category", "Price", "Quantity Sold"])
+        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setHorizontalHeaderLabels(["Name", "Category", "Cost ($)", "Sale Price ($)", "Quantity Sold"])
 
-        # Add row data, lock "Item", "Category", and "Price" columns
+        # Add row data, lock "Item", "Category", "Cost". and "Sale Price" columns
         for row_index, row in enumerate(table[1]):
             item_cell = QTableWidgetItem(row[item])
             item_cell.setFlags(item_cell.flags() & ~Qt.ItemIsEditable)
@@ -313,25 +343,44 @@ class SalesLogScreen(QWidget):
             category_cell.setFlags(category_cell.flags() & ~Qt.ItemIsEditable)
             self.tableWidget.setItem(row_index, 1, category_cell)
 
-            price_cell = QTableWidgetItem(row[price])
+            cost_cell = QTableWidgetItem(str(row[cost]))
+            cost_cell.setFlags(cost_cell.flags() & ~Qt.ItemIsEditable)
+            self.tableWidget.setItem(row_index, 2, cost_cell)
+
+            price_cell = QTableWidgetItem(str(row[price]))
             price_cell.setFlags(price_cell.flags() & ~Qt.ItemIsEditable)
-            self.tableWidget.setItem(row_index, 2, price_cell)
+            self.tableWidget.setItem(row_index, 3, price_cell)
 
             quantity_sold_cell = QTableWidgetItem("0")
-            self.tableWidget.setItem(row_index, 3, quantity_sold_cell)
+            self.tableWidget.setItem(row_index, 4, quantity_sold_cell)
+
+
+    # Checks if table's data can be saved in valid format
+    def valid_save(self):
+        col = HeaderIndex.LOG_QNT_SOLD.value
+        try:
+            # Check if any cell in the Quantity Sold column is not an integer
+            for row in range(self.tableWidget.rowCount()):
+                int(self.tableWidget.item(row, col).text())
+        except ValueError:
+            return False, "Quantity Sold must be a whole number."
+
+
+        return True, ""
 
 
     # Exports data from table, then switches back to sales screen
     def save_clicked(self):
-        if popups.save_confirmation_dialog():
-            wb = tablereader.export_table(self.tableWidget)
+        save_test = self.valid_save()
+        # Check if save data is in valid format (only enforces numerical value fields)
+        if save_test[0]:
+            # Confirm save
+            if popups.save_confirmation_dialog():
+                self.show_sales_screen()
+                del self # Deletes instance of SalesLogScreen
+        else:
+            popups.error_dialog(save_test[1], "Save Error")
 
-            ws = wb.active
-            for row in ws.iter_rows(values_only=True):
-                print(row)
-
-            self.show_sales_screen()
-            del self # Deletes instance of SalesLogScreen
 
     # Discards table data on confirmation and switches back to sales screen
     def cancel_clicked(self):
