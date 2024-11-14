@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QMessageBox, QSizePolicy
-
+from PySide6.QtWidgets import QMessageBox
 
 # Creates confirmation popup with yes/no options
 def confirmation_dialog(msg, title="", icon=QMessageBox.NoIcon):

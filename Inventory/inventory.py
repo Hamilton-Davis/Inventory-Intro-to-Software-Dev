@@ -2,10 +2,10 @@ from PySide6.QtCore import QRect, Qt, QDate, QSize
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget, QVBoxLayout, QDateEdit, QSpacerItem, \
     QSizePolicy, QHBoxLayout, QPushButton
-from firewall.core.ebtables import table
+
 
 import popups
-import tablereader
+from tablereader import DatabaseManager, HeaderIndex
 from widgetdesigners import Ui_InventoryWidget
 
 
@@ -34,7 +34,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # Clear pre-set columns
         self.tableWidget.setColumnCount(0)
 
-        table = tablereader.import_db()
+        table = DatabaseManager.import_db()
         # Add columns titles
         for column in table[0]:
             self.add_table_column(column)
@@ -137,14 +137,24 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
     # Returns an error message with False cases
     def valid_save(self):
         try:
-            # Check if any cell in the Cost, Sale Price, or Quantity columns cannot be converted to a float
-            for row in range(self.tableWidget.rowCount()):
-                if self.tableWidget.item(row, tablereader.HeaderIndex.NAME.value).text() in ["", "New Item"]:
-                    return False, "Item names must set before saving."
+            item_names = set()
 
-                for col in [tablereader.HeaderIndex.COST, tablereader.HeaderIndex.SALE_PRICE,
-                            tablereader.HeaderIndex.QUANTITY]:
+            for row in range(self.tableWidget.rowCount()):
+                item_name = self.tableWidget.item(row, HeaderIndex.NAME.value).text()
+
+                # Check if the item name is empty or set to a placeholder value
+                if item_name in ["", "New Item"]:
+                    return False, "Item names must be set before saving."
+
+                # Check for duplicate item names
+                if item_name in item_names:
+                    return False, f"Duplicate item name found: '{item_name}'. \nEach item must have a unique name."
+                item_names.add(item_name)
+
+                # Validate numerical values in specific columns
+                for col in [HeaderIndex.COST, HeaderIndex.SALE_PRICE, HeaderIndex.QUANTITY]:
                     float(self.tableWidget.item(row, col.value).text())
+
         except ValueError:
             return False, "File cannot be saved if values in Quantity, Cost, or Sale Price columns are not numerical values."
 
@@ -155,7 +165,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
     def saveButton_clicked(self):
         save_test = self.valid_save()
         if save_test[0]:
-            tablereader.export_table(self.tableWidget)
+            DatabaseManager.export_table(self.tableWidget)
             self.tableWidget.setRowCount(0)
             self.setup_table()
         else:
@@ -310,7 +320,7 @@ class SalesLogScreen(QWidget):
 
     # Imports items' name, category, and price
     def import_table(self):
-        table = tablereader.import_db()
+        table = DatabaseManager.import_db()
 
         # Get the index of the required columns
         item = table[0].index("Name")
@@ -347,7 +357,7 @@ class SalesLogScreen(QWidget):
 
     # Checks if table's data can be saved in valid format
     def valid_save(self):
-        col = tablereader.HeaderIndex.QNT_SOLD.value
+        col = HeaderIndex.LOG_QNT_SOLD.value
         try:
             # Check if any cell in the Quantity Sold column is not an integer
             for row in range(self.tableWidget.rowCount()):
@@ -357,7 +367,6 @@ class SalesLogScreen(QWidget):
 
 
         return True, ""
-
 
 
     # Exports data from table, then switches back to sales screen

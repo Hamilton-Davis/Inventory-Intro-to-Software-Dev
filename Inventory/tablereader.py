@@ -1,10 +1,8 @@
 import datetime
-import os
 import sqlite3
 import pandas as pd
-
 from enum import Enum
-from PySide6.QtWidgets import QTableWidgetItem
+
 
 class HeaderIndex(Enum):
     NAME = 0
@@ -15,144 +13,129 @@ class HeaderIndex(Enum):
     AVAILABLE = 5
     DATE_STOCKED = 6
     CONTACT = 7
-    QNT_SOLD = 4
+    LOG_QNT_SOLD = 4
 
-# Function to create a database file with the current date or a specified date
-def get_db_filename(date_offset=0):
-    date = datetime.datetime.now() + datetime.timedelta(days=date_offset)
-    date_str = date.strftime('%Y-%m-%d')
-    db_filename = f'items_{date_str}.db'
-    return db_filename
+class DatabaseManager:
+    DB_FILE = 'items.db'
 
-# Function to create the table if it doesn't exist
-def create_table_if_not_exists(conn):
-    cursor = conn.cursor()
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS items (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        category TEXT,
-        quantity INTEGER,
-        cost REAL,
-        sale_price REAL,
-        available BOOLEAN,
-        date_stocked TEXT,
-        contact TEXT
-    )
-    ''')
-    conn.commit()
+    @staticmethod
+    def connect():
+        return sqlite3.connect(DatabaseManager.DB_FILE)
 
-# Function to export table widget data to a database
-def export_table(table, db_filename=get_db_filename()):
-    new_file = not os.path.exists(db_filename)
-    conn = sqlite3.connect(db_filename)
-
-    if new_file:
-        create_table_if_not_exists(conn)
-    else:
-        # Clear the existing table to overwrite data
+    @staticmethod
+    def create_table(date=None):
+        table_name = DatabaseManager.get_table_name(date)
+        conn = DatabaseManager.connect()
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM items')
+        cursor.execute(f'''
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                category TEXT,
+                quantity INTEGER,
+                cost REAL,
+                sale_price REAL,
+                available BOOLEAN,
+                date_stocked TEXT,
+                contact TEXT,
+                qnt_sold INTEGER DEFAULT 0
+            )
+        ''')
+        conn.commit()
+        conn.close()
 
-    cursor = conn.cursor()
-    headers, data = read_table(table)
-
-    # Insert each row of data into the database
-    for row in data:
-        cursor.execute('''
-        INSERT INTO items (name, category, quantity, cost, sale_price, available, date_stocked, contact)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', row)
-
-    conn.commit()
-    conn.close()
-
-# Reads a table widget's data into a tuple in format ([headers], [data])
-def read_table(table):
-    headers = []
-    # Get header names
-    for column in range(table.columnCount()):
-        if table.horizontalHeaderItem(column) is None:
-            table.setHorizontalHeaderItem(column, QTableWidgetItem(""))
-        headers.append(table.horizontalHeaderItem(column).text())
-
-    # Get table data
-    data = []
-    for row in range(table.rowCount()):
-        row_data = []
-        for column in range(table.columnCount()):
-            if table.item(row, column) is None:
-                table.setItem(row, column, QTableWidgetItem(""))
-            row_data.append(table.item(row, column).text())
-
-        data.append(row_data)
-
-    return headers, data
-
-# Function to import data from a database
-def import_db(db_filename=get_db_filename()):
-    if not os.path.exists(db_filename):
-        print("Database file not found.")
-        default_headers = ['Name', 'Category', 'Quantity', 'Cost ($)', 'Sale Price ($)', 'Available', 'Date Stocked', 'Contact']
-        return default_headers, []
-
-    conn = sqlite3.connect(db_filename)
-    cursor = conn.cursor()
-
-    # Get header names
-    cursor.execute("PRAGMA table_info(items)")
-    default_headers = ['Name', 'Category', 'Quantity', 'Cost ($)', 'Sale Price ($)', 'Available', 'Date Stocked', 'Contact']
+    @staticmethod
+    def get_table_name(date=None):
+        if date is None:
+            date = datetime.datetime.now()
+        return f"items_{date.strftime('%Y_%m_%d')}"
 
 
-    # Get data rows
-    cursor.execute("SELECT name, category, quantity, cost, sale_price, available, date_stocked, contact FROM items")
-    data = cursor.fetchall()
-
-    conn.close()
-    return default_headers, data
-
-# Test data insertion
-db_filename = get_db_filename()
-
-# Example call to export and import functions (for testing)
-# export_table_to_db(your_table_widget, db_filename)
-# headers, data = import_from_db(db_filename)
-# print("Headers:", headers)
-# print("Data:", data)
-
-# takes two dates and returns every item in the table between the specified dates
-def between_two_dates(db_filename, start_date, end_date):
-    conn = sqlite3.connect(db_filename)
-    # SQL likes dates in Year/month/day format
-    query = f"""
-            SELECT *
-            FROM your_table
-            WHERE strftime('%Y-%m-%d', Date_Entered) BETWEEN '{start_date}' AND '{end_date}'; 
-            """
-    # this query sorts from our stored month/day/year into SQL friendly year/month/day
-
-    # stores our results in a dataframe to be returned
-    dataframe = pd.read_sql_query(query, conn)
-    conn.close()
-    return dataframe
-
-# this will return a dataframe with items grouped by name
-# these should be formatted as
-#   Item Name        Price                  Quantity                 Sales              Date Entered
-#   item1       [price1, price2]        [count1, count2]        [sales1, sales2]      [entry1, entry2]
-#   item2       [price1, price2]        [count1, count2]        [sales1, sales2]      [entry1, entry2]
-#   item3       [price1, price2]        [count1, count2]        [sales1, sales2]      [entry1, entry2]
-#
-# this should allow us to pull by item name to new lists and keep all relavent data
-# dataframe param is the dataframe created by filtering database table
-def sales_data(dataframe):
-   # Group by "Item Name" and specify aggregation for specific columns
-    grouped_df = dataframe.groupby('Item Name').agg({
-        'Price': list,                 # Aggregate Price into a list
-        'Quantity': list,              # Aggregate Quantity into a list
-        'Sales': list,                 # Aggregate Sales into a list
-        'Date Entered': list,          # Aggregate Date Entered into a list
-    }).reset_index()
-    return grouped_df # returns our grouped dataframe
+    @staticmethod
+    def get_most_recent_table():
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'items_%' ORDER BY name DESC LIMIT 1")
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else None
 
 
+    @staticmethod
+    def export_table(table, date=None):
+        table_name = DatabaseManager.get_table_name(date)
+        DatabaseManager.create_table(date)
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+        headers, data = DatabaseManager.read_table(table)
+
+        # Clear existing table data before exporting
+        cursor.execute(f'DELETE FROM {table_name}')
+
+        for row in data:
+            cursor.execute(f'''
+                INSERT INTO {table_name} (name, category, quantity, cost, sale_price, available, date_stocked, contact, qnt_sold)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', row)
+
+        conn.commit()
+        conn.close()
+
+
+    @staticmethod
+    def read_table(table):
+        headers = [table.horizontalHeaderItem(col).text() if table.horizontalHeaderItem(col) else "" for col in range(table.columnCount())]
+        data = [[table.item(row, col).text() if table.item(row, col) else "" for col in range(table.columnCount())] for row in range(table.rowCount())]
+        return headers, data
+
+
+    @staticmethod
+    def import_db(date=None):
+        table_name = DatabaseManager.get_table_name(date)
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+
+        # Check if the table exists in the database
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+        table_exists = cursor.fetchone() is not None
+
+        # Default headers and empty data to return if table does not exist
+        default_headers = ['Name', 'Category', 'Quantity', 'Cost ($)', 'Sale Price ($)', 'Available', 'Date Stocked',
+                           'Contact', 'Qnt Sold']
+
+        if not table_exists:
+            # If the table does not exist, return headers and empty data
+            conn.close()
+            return default_headers, []
+
+        # If the table exists, retrieve data from it
+        cursor.execute(
+            f"SELECT name, category, quantity, cost, sale_price, available, date_stocked, contact, qnt_sold FROM {table_name}")
+        data = cursor.fetchall()
+
+        conn.close()
+        return default_headers, data
+
+
+    @staticmethod
+    def between_two_dates(start_date, end_date):
+        table_name = DatabaseManager.get_table_name()
+        conn = DatabaseManager.connect()
+        query = f"""
+            SELECT * FROM {table_name}
+            WHERE strftime('%Y-%m-%d', date_stocked) BETWEEN '{start_date}' AND '{end_date}';
+        """
+        dataframe = pd.read_sql_query(query, conn)
+        conn.close()
+        return dataframe
+
+
+    @staticmethod
+    def sales_data(dataframe):
+        grouped_df = dataframe.groupby('name').agg({
+            'cost': list,
+            'quantity': list,
+            'sale_price': list,
+            'date_stocked': list,
+        }).reset_index()
+        return grouped_df
