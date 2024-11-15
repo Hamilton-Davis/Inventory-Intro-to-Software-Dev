@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import sqlite3
 from enum import Enum
 
@@ -217,6 +217,60 @@ class DatabaseManager:
         conn.close()
         return item_names
 
+
+    # Returns a list with the name, category, sale_price, and qnt_sold for each item in the list of item names
+    @staticmethod
+    def item_sales_data(item_names, date=None):
+        table_name = DatabaseManager.get_table_name(date)
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+
+        try:
+            # For all items in item_names, get name, sale_price, and qnt_sold
+            query = f"""
+                SELECT name, category, sale_price, qnt_sold
+                FROM {table_name}
+                WHERE name IN ({', '.join('?' for _ in item_names)})
+            """
+
+            cursor.execute(query, item_names)
+            results = cursor.fetchall()
+
+            if not results:
+                results = [[name, "Misc.", 0, 0] for name in item_names]
+
+        # If table does not exist or other error occurs during query, default 0 sale_price and 0 qnt_sold
+        except sqlite3.OperationalError as e:
+            print(f"An error occurred while fetching item data: {e}")
+            results = [[name, "Misc.", 0, 0] for name in item_names]
+
+        finally:
+            conn.close()
+
+        return results
+
+
+    # Returns a list of daily sales for matching item names for each day in time span
+    @staticmethod
+    def sales_between_dates(item_names, start_date, end_date):
+        sales_data_by_day = []
+
+        # Loop through each day between start_date and end_date
+        current_date = start_date
+        while current_date <= end_date:
+            # Get sales data for the current day
+            daily_sales_data = DatabaseManager.item_sales_data(item_names, current_date)
+
+            # Store the results along with the date
+            sales_data_by_day.append({
+                'date': current_date.strftime("%Y-%m-%d"),
+                'sales_data': daily_sales_data
+            })
+
+            # Move to the next day
+            current_date += timedelta(days=1)
+
+        return sales_data_by_day
 
     @staticmethod
     def sales_data(dataframe):

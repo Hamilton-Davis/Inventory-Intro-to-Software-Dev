@@ -39,6 +39,7 @@ class SalesScreen(QWidget):
         self.item_sales_list = QListWidget() # List of options for sales graph
         self.item_sales_list.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.item_graph_layout.addWidget(self.item_sales_list)
+        self.item_sales_list.itemChanged.connect(self.item_sales_list_update)
 
         self.item_qnt_view = QChartView()
         self.item_qnt_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -47,6 +48,7 @@ class SalesScreen(QWidget):
         self.item_qnt_list = QListWidget() # List of options for quantity graph
         self.item_qnt_list.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.item_graph_layout.addWidget(self.item_qnt_list)
+        self.item_qnt_list.itemChanged.connect(self.item_qnt_list_update)
 
         self.setup_lists()
         self.main_layout.addLayout(self.item_graph_layout)
@@ -102,26 +104,70 @@ class SalesScreen(QWidget):
         self.item_qnt_list.setFixedWidth(max_width + 50)
 
 
+    def get_checked_items(self, list):
+        checked_items = []
+        for row in range(list.count()):
+            item = list.item(row)
+            if item.checkState() == Qt.Checked:
+                checked_items.append(item.text())  # Get the text of the checked item
+        return checked_items
+
     # Updates item sales chart with new selections
     def item_sales_list_update(self):
-        # GET SALES DATA FROM FILE MANAGEMENT
-        item_sales = [] # Assume list is in format [ [item1] [item2] ...], each item being a sublist
-
+        dates = self.period_widget.get_dates()
+        item_names = self.get_checked_items(self.item_sales_list)
+        item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
         chart = self.create_linechart(item_sales)
-
         self.item_sales_view.setChart(chart)
 
 
-    # Returns a chart containing a line series for each item in list item_sales
+    # Updates item qnt chart with new selections
+    def item_qnt_list_update(self):
+        dates = self.period_widget.get_dates()
+        item_names = self.get_checked_items(self.item_qnt_list)
+        item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
+        chart = self.create_linechart(item_sales)
+        self.item_qnt_view.setChart(chart)
+
+    # Create and return a QChart with sales data plotted
     def create_linechart(self, item_sales):
         chart = QChart()
-        for item in item_sales:
-            # Add sales for
-            series = QLineSeries()
-            for sales_point in item:
-                series.append(sales_point)
-            chart.addSeries(series)
+
+        # Iterate over the item sales and plot data
+        for day_sales in item_sales:
+            date_str = day_sales['date']
+            date = datetime.strptime(date_str, "%Y-%m-%d")
+            sales_data = day_sales['sales_data']
+
+            # Create a QLineSeries for each item in sales_data
+            for item in sales_data:
+                item_name = item[0]
+                item_sales = item[2]  # Assuming index 2 holds the sales data for this item
+
+                # Find the series for the item or create a new one if it doesn't exist
+                series = self.get_lineseries(chart, item_name)
+
+                # Add data to the series
+                # Each point is (x, y) where x is the date timestamp and y is the sales quantity
+                series.append(date.timestamp(), item_sales)
+
+        # Set up chart
+        chart.createDefaultAxes()
+        chart.setTitle("Sales Data Over Time")
         return chart
+
+    def get_lineseries(self, chart, item_name):
+        """Find or create a QLineSeries for the given item name."""
+        # Try to find an existing series for the item
+        for series in chart.series():
+            if series.name() == item_name:
+                return series
+
+        # If not found, create a new series
+        new_series = QLineSeries()
+        new_series.setName(item_name)
+        chart.addSeries(new_series)
+        return new_series
 
 
 class SalesPeriodWidget(QWidget):

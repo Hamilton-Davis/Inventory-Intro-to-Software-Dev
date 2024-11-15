@@ -4,8 +4,6 @@ from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidg
     QSizePolicy, QHBoxLayout, QPushButton
 from datetime import datetime
 
-from setuptools.extern import names
-
 import popups
 from tablereader import DatabaseManager, HeaderIndex
 from widgetdesigners import Ui_InventoryWidget
@@ -30,6 +28,10 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         self.homeButton.clicked.connect(show_home_screen)  # Determines action by slot passed in constructor
         self.searchKeyBar.textChanged.connect(self.search_table)  # Connect search bars to the search function
         self.searchCategoryBar.textChanged.connect(self.search_table)
+
+        # Creates daily table in database
+        # Useful for sales log
+        DatabaseManager.export_table(self.tableWidget)
 
     # Imports data from an existing table into tableWidget
     def import_table(self):
