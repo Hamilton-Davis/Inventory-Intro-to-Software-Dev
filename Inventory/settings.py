@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QL
 import dataUtils  # Import utility functions
 from popups import confirmation_dialog  # Import confirmation dialog function
 
+
 class SettingsWidget(QWidget):
     data_updated = Signal()  # Signal emitted when data is updated
 
@@ -122,10 +123,29 @@ class SettingsWidget(QWidget):
         # ---------- Position Home Button at Top-Left Corner ----------
         self.home_button = QPushButton("Home", self)
         self.home_button.setFixedSize(75, 25)
-        self.home_button.clicked.connect(self.back_callback)
+        self.home_button.clicked.connect(self.on_home_button_click)
         home_icon = QIcon("icons/home.svg")
         self.home_button.setIcon(home_icon)
         self.home_button.setGeometry(QRect(10, 20, 75, 40))
+
+        # Method to clear all input fields
+
+    def clear_all_fields(self):
+        self.change_username_input.clear()
+        self.confirm_username_input.clear()
+        self.change_password_input.clear()
+        self.confirm_password_input.clear()
+        self.change_hint_input.clear()
+        self.change_answer_input.clear()
+
+        # Method to handle home button click
+
+    def on_home_button_click(self):
+        # Clear all input fields when the Home button is clicked
+        self.clear_all_fields()
+
+        # Call the back callback to go back to the previous screen
+        self.back_callback()
 
     # Method to toggle password visibility
     def toggle_password_visibility(self, state):
