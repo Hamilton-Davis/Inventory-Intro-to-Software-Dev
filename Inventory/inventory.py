@@ -2,6 +2,9 @@ from PySide6.QtCore import QRect, Qt, QDate, QSize
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget, QVBoxLayout, QDateEdit, QSpacerItem, \
     QSizePolicy, QHBoxLayout, QPushButton
+from datetime import datetime
+
+from setuptools.extern import names
 
 import popups
 from tablereader import DatabaseManager, HeaderIndex
@@ -51,6 +54,11 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         # Set table formatting
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.setSelectionBehavior(QTableWidget.SelectRows)
+
+
+    def reset_table(self):
+        self.tableWidget.setRowCount(0)
+        self.setup_table()
 
 
     # Disables editing of all rows and columns in table
@@ -165,8 +173,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
         save_test = self.valid_save()
         if save_test[0]:
             DatabaseManager.export_table(self.tableWidget)
-            self.tableWidget.setRowCount(0)
-            self.setup_table()
+            self.reset_table()
         else:
             popups.error_dialog(save_test[1], "Save Error")
 
@@ -284,7 +291,7 @@ class SalesLogScreen(QWidget):
         top_spacer = QSpacerItem(40, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.top_layout.addItem(top_spacer)
         self.date_edit = QDateEdit()
-        self.date_edit.setDisplayFormat("yyyy/MM/dd")
+        self.date_edit.setDisplayFormat("yyyy-MM-dd")
         self.date_edit.setCalendarPopup(True)
         self.date_edit.setDate(QDate.currentDate())
         self.top_layout.addWidget(self.date_edit)
@@ -322,21 +329,22 @@ class SalesLogScreen(QWidget):
         table = DatabaseManager.import_db()
 
         # Get the index of the required columns
-        item = table[0].index("Name")
-        category = table[0].index("Category")
-        cost = table[0].index("Cost ($)")
-        price = table[0].index("Sale Price ($)")
+        name = HeaderIndex.NAME.value
+        category = HeaderIndex.CATEGORY.value
+        cost = HeaderIndex.COST.value
+        price = HeaderIndex.SALE_PRICE.value
+        qnt_sold = HeaderIndex.QNT_SOLD.value
 
         # Create rows and columns
         self.tableWidget.setRowCount(len(table[1]))
         self.tableWidget.setColumnCount(5)
         self.tableWidget.setHorizontalHeaderLabels(["Name", "Category", "Cost ($)", "Sale Price ($)", "Quantity Sold"])
 
-        # Add row data, lock "Item", "Category", "Cost". and "Sale Price" columns
+        # Add row data, lock "Name", "Category", "Cost". and "Sale Price" columns
         for row_index, row in enumerate(table[1]):
-            item_cell = QTableWidgetItem(row[item])
-            item_cell.setFlags(item_cell.flags() & ~Qt.ItemIsEditable)
-            self.tableWidget.setItem(row_index, 0, item_cell)
+            name_cell = QTableWidgetItem(row[name])
+            name_cell.setFlags(name_cell.flags() & ~Qt.ItemIsEditable)
+            self.tableWidget.setItem(row_index, 0, name_cell)
 
             category_cell = QTableWidgetItem(row[category])
             category_cell.setFlags(category_cell.flags() & ~Qt.ItemIsEditable)
@@ -350,7 +358,7 @@ class SalesLogScreen(QWidget):
             price_cell.setFlags(price_cell.flags() & ~Qt.ItemIsEditable)
             self.tableWidget.setItem(row_index, 3, price_cell)
 
-            quantity_sold_cell = QTableWidgetItem("0")
+            quantity_sold_cell = QTableWidgetItem(str(row[qnt_sold]))
             self.tableWidget.setItem(row_index, 4, quantity_sold_cell)
 
 
@@ -375,6 +383,7 @@ class SalesLogScreen(QWidget):
         if save_test[0]:
             # Confirm save
             if popups.save_confirmation_dialog():
+                DatabaseManager.export_sales_log(self.tableWidget, datetime.strptime(self.date_edit.text(), "%Y-%m-%d"))
                 self.show_sales_screen()
                 del self # Deletes instance of SalesLogScreen
         else:

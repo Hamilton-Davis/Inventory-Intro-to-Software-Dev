@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import sqlite3
 from enum import Enum
 
@@ -14,6 +14,7 @@ class HeaderIndex(Enum):
     AVAILABLE = 5
     DATE_STOCKED = 6
     CONTACT = 7
+    QNT_SOLD = 8
     LOG_QNT_SOLD = 4
 
 class DatabaseManager:
@@ -33,9 +34,9 @@ class DatabaseManager:
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 category TEXT,
-                quantity INTEGER,
-                cost REAL,
-                sale_price REAL,
+                quantity INTEGER DEFAULT 0,
+                cost REAL DEFAULT 0,
+                sale_price REAL DEFAULT 0,
                 available BOOLEAN,
                 date_stocked TEXT,
                 contact TEXT,
@@ -45,13 +46,15 @@ class DatabaseManager:
         conn.commit()
         conn.close()
 
+    # Returns the name of
     @staticmethod
     def get_table_name(date=None):
         if date is None:
-            date = datetime.datetime.now()
+            date = datetime.now()
         return f"items_{date.strftime('%Y_%m_%d')}"
 
 
+    # Returns the name of the most recently created table
     @staticmethod
     def get_most_recent_table():
         conn = DatabaseManager.connect()
@@ -62,13 +65,15 @@ class DatabaseManager:
         return result[0] if result else None
 
 
+    # Writes data from table widget to a daily table in database
+    # Defaults to today's daily table
     @staticmethod
     def export_table(table, date=None):
         table_name = DatabaseManager.get_table_name(date)
         DatabaseManager.create_table(date)
         conn = DatabaseManager.connect()
         cursor = conn.cursor()
-        headers, data = DatabaseManager.read_table(table)
+        data = DatabaseManager.read_table(table)
 
         # Clear existing table data before exporting
         cursor.execute(f'DELETE FROM {table_name}')
@@ -83,16 +88,49 @@ class DatabaseManager:
         conn.close()
 
 
+    # Writes data from condensed sales log table to a daily table in database
+    # Defaults to today's daily table
+    @staticmethod
+    def export_sales_log(table, date):
+        table_name = DatabaseManager.get_table_name(date)
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+        data = DatabaseManager.read_sales_log(table)
+
+        # Update table with data
+        try:
+            for row in data:
+                cursor.execute(f"UPDATE {table_name} SET qnt_sold = ? WHERE name = ?", (int(row[1]), row[0]))
+
+        except sqlite3.OperationalError as e:
+            print(f"An error occurred while saving sales log: {e}")
+
+        finally:
+            conn.commit()
+            conn.close()
+
+
+    # Reads data from a table widget's rows and returns a list
     @staticmethod
     def read_table(table):
-        headers = [table.horizontalHeaderItem(col).text() if table.horizontalHeaderItem(col) else "" for col in range(table.columnCount())]
         data = [[table.item(row, col).text() if table.item(row, col) else "" for col in range(table.columnCount())] for row in range(table.rowCount())]
-        return headers, data
+        return data
+
+    # Reads data from condensed sales log table and returns a list of items and qnt sold
+    @staticmethod
+    def read_sales_log(table):
+        data = [[table.item(row, col).text() if table.item(row, col) else "" for col in [HeaderIndex.NAME.value, HeaderIndex.LOG_QNT_SOLD.value]] for row in range(table.rowCount())]
+        return data
 
 
+    # Queries database for most recent table or table matching specified date and returns table info in (headers, data) format
     @staticmethod
     def import_db(date=None):
-        table_name = DatabaseManager.get_table_name(date)
+        table_name = ""
+        if date is None:
+            table_name = DatabaseManager.get_most_recent_table()
+        else:
+            table_name = DatabaseManager.get_table_name(date)
         conn = DatabaseManager.connect()
         cursor = conn.cursor()
 
@@ -103,6 +141,7 @@ class DatabaseManager:
         # Default headers and empty data to return if table does not exist
         default_headers = ['Name', 'Category', 'Quantity', 'Cost ($)', 'Sale Price ($)', 'Available', 'Date Stocked',
                            'Contact', 'Qnt Sold']
+        data = []
 
         if not table_exists:
             # If the table does not exist, return headers and empty data
@@ -143,20 +182,19 @@ class DatabaseManager:
         table_names = [name[0] for name in cursor.fetchall()]
 
         # Remove table names outside of time span from list
-        from_date_datetime = datetime.datetime.strptime(from_date, "%Y-%m-%d").date()
-        to_date_datetime = datetime.datetime.strptime(to_date, "%Y-%m-%d").date()
         filtered_names = []
         for table_name in table_names:
             try:
                 name_date = table_name.removeprefix(table_prefix)
-                name_date = datetime.datetime.strptime(name_date, "%Y_%m_%d").date()
+                name_date = datetime.strptime(name_date, "%Y_%m_%d").date()
 
-                if from_date_datetime <= name_date <= to_date_datetime:
+                if from_date <= name_date <= to_date:
                     filtered_names.append(table_name)
 
             except ValueError:  # Skip any table names that can't be converted to a date
                 continue
 
+        conn.close()
         return filtered_names
 
 
@@ -176,6 +214,7 @@ class DatabaseManager:
             for item_name in cursor.fetchall():
                 item_names.add(item_name[0])
 
+        conn.close()
         return item_names
 
 

@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, Q
                                QLabel, QDateEdit, QListWidgetItem)
 
 from tablereader import DatabaseManager
+from datetime import datetime
 
 
 class SalesScreen(QWidget):
@@ -67,6 +68,8 @@ class SalesScreen(QWidget):
 
     # Adds checkboxes with item names to both item option lists
     def setup_lists(self):
+        self.item_sales_list.clear()
+        self.item_qnt_list.clear()
         dates = self.period_widget.get_dates()
         item_names = DatabaseManager.items_between_dates(dates[0], dates[1])
 
@@ -104,7 +107,13 @@ class SalesScreen(QWidget):
         # GET SALES DATA FROM FILE MANAGEMENT
         item_sales = [] # Assume list is in format [ [item1] [item2] ...], each item being a sublist
 
-        # Create chart with line series for each item
+        chart = self.create_linechart(item_sales)
+
+        self.item_sales_view.setChart(chart)
+
+
+    # Returns a chart containing a line series for each item in list item_sales
+    def create_linechart(self, item_sales):
         chart = QChart()
         for item in item_sales:
             # Add sales for
@@ -112,8 +121,7 @@ class SalesScreen(QWidget):
             for sales_point in item:
                 series.append(sales_point)
             chart.addSeries(series)
-
-        self.item_sales_view.setChart(chart)
+        return chart
 
 
 class SalesPeriodWidget(QWidget):
@@ -147,8 +155,8 @@ class SalesPeriodWidget(QWidget):
         self.toDateEdit.setDate(current_date)
         self.fromDateEdit.setDate(current_date.addDays(-timespan))
 
-    # Returns a tuple of (from_date, to_date) in string format "yyyy-MM-dd"
+    # Returns a tuple of datetime dates in format (from_date, to_date)
     def get_dates(self):
-        from_date = self.fromDateEdit.date().toString("yyyy-MM-dd")
-        to_date = self.toDateEdit.date().toString("yyyy-MM-dd")
+        from_date = datetime.strptime(self.fromDateEdit.text(), "%Y-%m-%d").date()
+        to_date = datetime.strptime(self.toDateEdit.text(), "%Y-%m-%d").date()
         return from_date, to_date

@@ -85,10 +85,12 @@ class MainWidget(QWidget):
 
     # Changes the displayed widget to inventory_screen
     def show_inventory_screen(self):
+        self.inventory_screen.reset_table()
         self.stackedWidget.setCurrentWidget(self.inventory_screen)
 
     # Changes the displayed widget to sales_screen
     def show_sales_screen(self):
+        self.sales_screen.setup_lists()
         self.stackedWidget.setCurrentWidget(self.sales_screen)
 
     # Changes the displayed widget to settings_screen

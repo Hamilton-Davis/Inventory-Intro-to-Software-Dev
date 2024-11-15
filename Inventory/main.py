@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     # Create instance of MainWidget (contains program's screens)
     mainWidget = MainWidget()
-    mainWidget.resize(800, 600)
+    mainWidget.resize(1300, 800)
     mainWidget.show()
 
     sys.exit(app.exec())
