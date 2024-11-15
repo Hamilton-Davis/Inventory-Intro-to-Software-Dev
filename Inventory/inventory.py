@@ -3,7 +3,6 @@ from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget, QVBoxLayout, QDateEdit, QSpacerItem, \
     QSizePolicy, QHBoxLayout, QPushButton
 
-
 import popups
 from tablereader import DatabaseManager, HeaderIndex
 from widgetdesigners import Ui_InventoryWidget
@@ -285,7 +284,7 @@ class SalesLogScreen(QWidget):
         top_spacer = QSpacerItem(40, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.top_layout.addItem(top_spacer)
         self.date_edit = QDateEdit()
-        self.date_edit.setDisplayFormat("MM/dd/yyyy")
+        self.date_edit.setDisplayFormat("yyyy/MM/dd")
         self.date_edit.setCalendarPopup(True)
         self.date_edit.setDate(QDate.currentDate())
         self.top_layout.addWidget(self.date_edit)

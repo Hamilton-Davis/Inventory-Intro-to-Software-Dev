@@ -4,6 +4,8 @@ from PySide6.QtGui import QIcon, Qt, QFont, QFontMetrics
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QListWidget, QSpacerItem, QSizePolicy,
                                QLabel, QDateEdit, QListWidgetItem)
 
+from tablereader import DatabaseManager
+
 
 class SalesScreen(QWidget):
     def __init__(self, switch_to_home, switch_to_sales_log):
@@ -65,31 +67,36 @@ class SalesScreen(QWidget):
 
     # Adds checkboxes with item names to both item option lists
     def setup_lists(self):
-        # USE FILE MANAGEMENT FUNCTION TO REQUEST ITEM NAME DATA
-        # Placeholder names
-        item_names = ["Wireless Mouse", "Bluetooth Speaker", "USB-C Charger", "HDMI Cable", "Laptop Stand", "Mechanical Keyboard", "Portable Hard Drive", "Smartphone Stand", "Noise-Canceling Headphones", "Gaming Monitor", "Ergonomic Office Chair", "Desk Lamp", "External SSD", "Wireless Earbuds", "Webcam", "Fitness Tracker", "Smartwatch", "Tablet Case", "Screen Protector", "Stylus Pen", "Portable Projector", "Smart Home Hub", "VR Headset", "Digital Notebook", "Wireless Charger"]
+        dates = self.period_widget.get_dates()
+        item_names = DatabaseManager.items_between_dates(dates[0], dates[1])
 
-        # Add item names to list
+        # Set up font and font metrics
         item_font = QFont()
         item_font.setPointSize(10)
+        font_metrics = QFontMetrics(item_font)
         max_width = 0
-        for list in range(2):
+
+        # Add item names to lists and calculate max width
+        for list_index in range(2):
             for name in item_names:
-                # Create checkbox with item name
+                # Create list item with checkbox and specified font
                 list_item = QListWidgetItem(name)
                 list_item.setFlags(list_item.flags() & ~Qt.ItemIsEditable | Qt.ItemIsUserCheckable)
                 list_item.setCheckState(Qt.Unchecked)
                 list_item.setFont(item_font)
-                font_metrics = QFontMetrics(item_font)
-                if list == 0:
+
+                # Calculate width of text and update max_width if it's larger
+                max_width = max(max_width, font_metrics.horizontalAdvance(name))
+
+                # Add item to the appropriate list
+                if list_index == 0:
                     self.item_sales_list.addItem(list_item)
                 else:
                     self.item_qnt_list.addItem(list_item)
 
-                # Get max text length
-                max_width = max(max_width, font_metrics.horizontalAdvance(list_item.text()))
-        self.item_sales_list.setFixedWidth(max_width + 10)
-        self.item_qnt_list.setFixedWidth(max_width + 10)
+        # Set the fixed width for both lists based on max_width
+        self.item_sales_list.setFixedWidth(max_width + 50)
+        self.item_qnt_list.setFixedWidth(max_width + 50)
 
 
     # Updates item sales chart with new selections
@@ -117,11 +124,11 @@ class SalesPeriodWidget(QWidget):
         self.layout.addWidget(self.label)
 
         self.fromDateEdit = QDateEdit()
-        self.fromDateEdit.setDisplayFormat("MM/dd/yyyy")
+        self.fromDateEdit.setDisplayFormat("yyyy-MM-dd")
         self.fromDateEdit.setCalendarPopup(True)
         self.layout.addWidget(self.fromDateEdit)
         self.toDateEdit = QDateEdit()
-        self.toDateEdit.setDisplayFormat("MM/dd/yyyy")
+        self.toDateEdit.setDisplayFormat("yyyy-MM-dd")
         self.toDateEdit.setCalendarPopup(True)
         self.setup_dates()
         self.layout.addWidget(self.toDateEdit)
@@ -140,8 +147,8 @@ class SalesPeriodWidget(QWidget):
         self.toDateEdit.setDate(current_date)
         self.fromDateEdit.setDate(current_date.addDays(-timespan))
 
-    # Returns a tuple of (from_date, to_date) in string format "MM/dd/yyyy"
+    # Returns a tuple of (from_date, to_date) in string format "yyyy-MM-dd"
     def get_dates(self):
-        from_date = self.fromDateEdit.date().toString("MM/dd/yyyy")
-        to_date = self.toDateEdit.date().toString("MM/dd/yyyy")
+        from_date = self.fromDateEdit.date().toString("yyyy-MM-dd")
+        to_date = self.toDateEdit.date().toString("yyyy-MM-dd")
         return from_date, to_date

@@ -1,7 +1,8 @@
 import datetime
 import sqlite3
-import pandas as pd
 from enum import Enum
+
+import pandas as pd
 
 
 class HeaderIndex(Enum):
@@ -128,6 +129,54 @@ class DatabaseManager:
         dataframe = pd.read_sql_query(query, conn)
         conn.close()
         return dataframe
+
+
+    # Returns a list of database table names matching the "item_yyyy_MM_dd" format within time span
+    @staticmethod
+    def tables_between_dates(from_date, to_date):
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+
+        # Get all tables with "item_yyyy_MM_dd" name format
+        table_prefix = "items_"
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '{table_prefix}%'")
+        table_names = [name[0] for name in cursor.fetchall()]
+
+        # Remove table names outside of time span from list
+        from_date_datetime = datetime.datetime.strptime(from_date, "%Y-%m-%d").date()
+        to_date_datetime = datetime.datetime.strptime(to_date, "%Y-%m-%d").date()
+        filtered_names = []
+        for table_name in table_names:
+            try:
+                name_date = table_name.removeprefix(table_prefix)
+                name_date = datetime.datetime.strptime(name_date, "%Y_%m_%d").date()
+
+                if from_date_datetime <= name_date <= to_date_datetime:
+                    filtered_names.append(table_name)
+
+            except ValueError:  # Skip any table names that can't be converted to a date
+                continue
+
+        return filtered_names
+
+
+    # Returns a list of unique item names from all item tables within time span
+    @staticmethod
+    def items_between_dates(from_date, to_date):
+        conn = DatabaseManager.connect()
+        cursor = conn.cursor()
+
+        table_names = DatabaseManager.tables_between_dates(from_date, to_date)
+
+        # Get unique item names from all tables
+        item_names = set()
+        for table_name in table_names:
+            cursor.execute(f"SELECT DISTINCT name FROM {table_name}")
+
+            for item_name in cursor.fetchall():
+                item_names.add(item_name[0])
+
+        return item_names
 
 
     @staticmethod
