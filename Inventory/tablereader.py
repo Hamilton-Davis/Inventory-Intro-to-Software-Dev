@@ -250,10 +250,12 @@ class DatabaseManager:
         return results
 
 
-    # Returns a list of daily sales for matching item names for each day in time span
+    # Returns a list of dictionaries containing the daily sales info for each item in item_names list
     @staticmethod
     def sales_between_dates(item_names, start_date, end_date):
-        sales_data_by_day = []
+        # Initialize a dictionary to hold sales data for each item
+        sales_data_by_item = {name: {'name': name, 'category': "Misc.", 'sale_price': 0, 'daily_sales': []} for name in
+                              item_names}
 
         # Loop through each day between start_date and end_date
         current_date = start_date
@@ -261,16 +263,25 @@ class DatabaseManager:
             # Get sales data for the current day
             daily_sales_data = DatabaseManager.item_sales_data(item_names, current_date)
 
-            # Store the results along with the date
-            sales_data_by_day.append({
-                'date': current_date.strftime("%Y-%m-%d"),
-                'sales_data': daily_sales_data
-            })
+            # Process daily sales data
+            for item_data in daily_sales_data:
+                name = item_data[0]
+                category = item_data[1]
+                sale_price = item_data[2]
+                qnt_sold = item_data[3]
+
+                # Update the dictionary with daily sales
+                if name in sales_data_by_item:
+                    sales_data_by_item[name]['category'] = category  # Update category
+                    sales_data_by_item[name]['sale_price'] = sale_price  # Update sale_price
+                    sales_data_by_item[name]['daily_sales'].append(
+                        {'date': current_date.strftime("%Y-%m-%d"), 'qnt_sold': qnt_sold})
 
             # Move to the next day
             current_date += timedelta(days=1)
 
-        return sales_data_by_day
+        # Return the sales data as a list of dictionaries
+        return list(sales_data_by_item.values())
 
     @staticmethod
     def sales_data(dataframe):

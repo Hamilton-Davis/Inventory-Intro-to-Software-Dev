@@ -1,8 +1,9 @@
-from PySide6.QtCharts import QChartView, QLineSeries, QChart
-from PySide6.QtCore import QRect, QSize, QDate
+from PySide6.QtCharts import QChartView, QLineSeries, QChart, QDateTimeAxis, QValueAxis
+from PySide6.QtCore import QRect, QSize, QDate, QDateTime
 from PySide6.QtGui import QIcon, Qt, QFont, QFontMetrics
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QListWidget, QSpacerItem, QSizePolicy,
                                QLabel, QDateEdit, QListWidgetItem)
+from pygments.lexers import q
 
 from tablereader import DatabaseManager
 from datetime import datetime
@@ -99,6 +100,11 @@ class SalesScreen(QWidget):
                 else:
                     self.item_qnt_list.addItem(list_item)
 
+
+        # Sort both lists alphabetically
+        self.item_sales_list.sortItems()
+        self.item_qnt_list.sortItems()
+
         # Set the fixed width for both lists based on max_width
         self.item_sales_list.setFixedWidth(max_width + 50)
         self.item_qnt_list.setFixedWidth(max_width + 50)
@@ -117,7 +123,7 @@ class SalesScreen(QWidget):
         dates = self.period_widget.get_dates()
         item_names = self.get_checked_items(self.item_sales_list)
         item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
-        chart = self.create_linechart(item_sales)
+        chart = self.create_linechart(item_sales, "Gross Sales", y_mode=1)
         self.item_sales_view.setChart(chart)
 
 
@@ -126,38 +132,81 @@ class SalesScreen(QWidget):
         dates = self.period_widget.get_dates()
         item_names = self.get_checked_items(self.item_qnt_list)
         item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
-        chart = self.create_linechart(item_sales)
+        chart = self.create_linechart(item_sales, "Quantity Sold", y_mode=0)
         self.item_qnt_view.setChart(chart)
 
-    # Create and return a QChart with sales data plotted
-    def create_linechart(self, item_sales):
+
+    # Returns a chart with lineseries for each item in item_sales
+    # y_mode determines if y_axis will display quantity sold (y_mode=0) or sales in dollars (y_mode=1)
+    def create_linechart(self, item_sales, chart_title="Chart", y_mode=0):
         chart = QChart()
+        chart.setTitle(chart_title)
 
-        # Iterate over the item sales and plot data
-        for day_sales in item_sales:
-            date_str = day_sales['date']
-            date = datetime.strptime(date_str, "%Y-%m-%d")
-            sales_data = day_sales['sales_data']
+        x_axis = QDateTimeAxis()
+        x_axis.setTickCount(10)
+        x_axis.setFormat("MM/dd")
+        x_axis.setTitleText("Date")
+        chart.addAxis(x_axis, Qt.AlignBottom)
 
-            # Create a QLineSeries for each item in sales_data
-            for item in sales_data:
-                item_name = item[0]
-                item_sales = item[2]  # Assuming index 2 holds the sales data for this item
+        y_axis = QValueAxis()
+        y_axis.setTickCount(10)
+        if y_mode == 0: # Display Quantity Sold
+            y_axis.setLabelFormat("%i")
+            y_axis.setTitleText("Quantity Sold")
+        elif y_mode == 1: # Display dollar amount sold
+            y_axis.setLabelFormat("%.2f")
+            y_axis.setTitleText("Sales ($)")
+        else: # Display default y_axis
+            y_axis.setLabelFormat("%i")
+            y_axis.setTitleText("y_axis")
+        chart.addAxis(y_axis, Qt.AlignLeft)
 
-                # Find the series for the item or create a new one if it doesn't exist
-                series = self.get_lineseries(chart, item_name)
+        sales_lineseries = self.create_lineseries(item_sales, y_mode)
 
-                # Add data to the series
-                # Each point is (x, y) where x is the date timestamp and y is the sales quantity
-                series.append(date.timestamp(), item_sales)
+        # Variable to calculate global y-axis range
+        max_y = float('-inf')
 
-        # Set up chart
-        chart.createDefaultAxes()
-        chart.setTitle("Sales Data Over Time")
+        for item_lineseries in sales_lineseries:
+            chart.addSeries(item_lineseries)
+            item_lineseries.attachAxis(x_axis)
+            item_lineseries.attachAxis(y_axis)
+
+            # Update min and max y values
+            for point in item_lineseries.pointsVector():
+                x, y = point.x(), point.y()
+                max_y = max(max_y, y)
+
+        # Set axis ranges
+        if max_y == float('-inf'):
+            max_y = 1  # Default range if no data
+        y_axis.setRange(0, max_y + 10)
+
         return chart
 
-    def get_lineseries(self, chart, item_name):
-        """Find or create a QLineSeries for the given item name."""
+
+
+    # Returns a list of lineseries created from item_sales items
+    def create_lineseries(self, item_sales, y_mode=0):
+        sales_lineseries = []
+
+        for item in item_sales:
+            series = QLineSeries()
+            series.setName(item['name'])
+
+            for daily_data in item['daily_sales']:
+                date = QDateTime.fromString(daily_data['date'], "yyyy-MM-dd").toMSecsSinceEpoch()
+                if y_mode == 0:
+                    qnt_sold = daily_data['qnt_sold']
+                    series.append(date, qnt_sold)
+                else:
+                    gross = daily_data['qnt_sold'] * item['sale_price']
+
+
+            sales_lineseries.append(series)
+
+        return sales_lineseries
+
+    """def get_lineseries(self, chart, item_name):
         # Try to find an existing series for the item
         for series in chart.series():
             if series.name() == item_name:
@@ -167,7 +216,7 @@ class SalesScreen(QWidget):
         new_series = QLineSeries()
         new_series.setName(item_name)
         chart.addSeries(new_series)
-        return new_series
+        return new_series"""
 
 
 class SalesPeriodWidget(QWidget):
