@@ -28,6 +28,8 @@ class SalesScreen(QWidget):
         self.nav_layout.addItem(spacer)
 
         self.period_widget = SalesPeriodWidget(switch_to_sales_log)
+        self.period_widget.fromDateEdit.dateChanged.connect(self.period_updated)
+        self.period_widget.toDateEdit.dateChanged.connect(self.period_updated)
         self.nav_layout.addWidget(self.period_widget)
         self.main_layout.addLayout(self.nav_layout)
 
@@ -66,6 +68,10 @@ class SalesScreen(QWidget):
         right_spacer = QSpacerItem(10, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.category_graph_layout.addItem(right_spacer)
         self.main_layout.addLayout(self.category_graph_layout)
+
+        # Display empty charts at load
+        self.item_sales_list_update()
+        self.item_qnt_list_update()
 
 
 
@@ -118,12 +124,17 @@ class SalesScreen(QWidget):
                 checked_items.append(item.text())  # Get the text of the checked item
         return checked_items
 
+    # Updates charts when sales period dates are updated
+    def period_updated(self):
+        self.item_sales_list_update()
+        self.item_qnt_list_update()
+
     # Updates item sales chart with new selections
     def item_sales_list_update(self):
         dates = self.period_widget.get_dates()
         item_names = self.get_checked_items(self.item_sales_list)
         item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
-        chart = self.create_linechart(item_sales, "Gross Sales", y_mode=1)
+        chart = self.create_linechart(item_sales, "Sales by Day", y_mode=1)
         self.item_sales_view.setChart(chart)
 
 
@@ -132,7 +143,7 @@ class SalesScreen(QWidget):
         dates = self.period_widget.get_dates()
         item_names = self.get_checked_items(self.item_qnt_list)
         item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
-        chart = self.create_linechart(item_sales, "Quantity Sold", y_mode=0)
+        chart = self.create_linechart(item_sales, "Quantity Sold by Day", y_mode=0)
         self.item_qnt_view.setChart(chart)
 
 
@@ -155,7 +166,7 @@ class SalesScreen(QWidget):
             y_axis.setTitleText("Quantity Sold")
         elif y_mode == 1: # Display dollar amount sold
             y_axis.setLabelFormat("%.2f")
-            y_axis.setTitleText("Sales ($)")
+            y_axis.setTitleText("Amount Sold ($)")
         else: # Display default y_axis
             y_axis.setLabelFormat("%i")
             y_axis.setTitleText("y_axis")
@@ -200,6 +211,7 @@ class SalesScreen(QWidget):
                     series.append(date, qnt_sold)
                 else:
                     gross = daily_data['qnt_sold'] * item['sale_price']
+                    series.append(date, gross)
 
 
             sales_lineseries.append(series)
