@@ -28,6 +28,7 @@ Overview of Software,
     pip install cryptography.fernet
     pip install sqlite3
     pip install os
+    pip install pandas
 
   To Run:
     
