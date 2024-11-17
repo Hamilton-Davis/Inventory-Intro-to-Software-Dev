@@ -259,15 +259,17 @@ class DatabaseManager:
 
         # Loop through each day between start_date and end_date
         current_date = start_date
+        sale_price = 0
         while current_date <= end_date:
             # Get sales data for the current day
             daily_sales_data = DatabaseManager.item_sales_data(item_names, current_date)
 
             # Process daily sales data
+            category = "Misc."
             for item_data in daily_sales_data:
                 name = item_data[0]
-                category = item_data[1]
-                sale_price = item_data[2]
+                if category == 'Misc.': category = item_data[1] # Accept any non-default category as new value
+                sale_price = max(item_data[2], sale_price) # Accept any non-zero sales_price as new value
                 qnt_sold = item_data[3]
 
                 # Update the dictionary with daily sales

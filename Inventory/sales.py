@@ -74,7 +74,6 @@ class SalesScreen(QWidget):
         self.item_qnt_list_update()
 
 
-
     # Adds checkboxes with item names to both item option lists
     def setup_lists(self):
         self.item_sales_list.clear()
@@ -124,10 +123,12 @@ class SalesScreen(QWidget):
                 checked_items.append(item.text())  # Get the text of the checked item
         return checked_items
 
+
     # Updates charts when sales period dates are updated
     def period_updated(self):
         self.item_sales_list_update()
         self.item_qnt_list_update()
+
 
     # Updates item sales chart with new selections
     def item_sales_list_update(self):
@@ -154,7 +155,6 @@ class SalesScreen(QWidget):
         chart.setTitle(chart_title)
 
         x_axis = QDateTimeAxis()
-        x_axis.setTickCount(10)
         x_axis.setFormat("MM/dd")
         x_axis.setTitleText("Date")
         chart.addAxis(x_axis, Qt.AlignBottom)
@@ -174,23 +174,34 @@ class SalesScreen(QWidget):
 
         sales_lineseries = self.create_lineseries(item_sales, y_mode)
 
-        # Variable to calculate global y-axis range
-        max_y = float('-inf')
+        # Variable to calculate y-axis range
+        max_y = 0
+
 
         for item_lineseries in sales_lineseries:
             chart.addSeries(item_lineseries)
             item_lineseries.attachAxis(x_axis)
             item_lineseries.attachAxis(y_axis)
 
-            # Update min and max y values
+            # Update max_y
             for point in item_lineseries.pointsVector():
-                x, y = point.x(), point.y()
+                y = point.y()
                 max_y = max(max_y, y)
 
         # Set axis ranges
-        if max_y == float('-inf'):
+        if max_y == 0:
             max_y = 1  # Default range if no data
-        y_axis.setRange(0, max_y + 10)
+        y_axis.setRange(0, max_y * 1.15)
+
+        dates = self.period_widget.get_dates()
+        daterange = (dates[1] - dates[0]).days
+        # Dynamically adjust tick count based on daterange
+        if daterange <= 10:
+            x_axis.setTickCount(daterange + 1)  # Ensure a tick for each date
+        elif daterange <= 50:
+            x_axis.setTickCount(min(10, daterange))  # At most 10 ticks for ranges <= 50 days
+        else:
+            x_axis.setTickCount(10)  # Default tick count for larger ranges
 
         return chart
 
@@ -204,31 +215,26 @@ class SalesScreen(QWidget):
             series = QLineSeries()
             series.setName(item['name'])
 
+            all_zero = True
+
             for daily_data in item['daily_sales']:
                 date = QDateTime.fromString(daily_data['date'], "yyyy-MM-dd").toMSecsSinceEpoch()
                 if y_mode == 0:
                     qnt_sold = daily_data['qnt_sold']
                     series.append(date, qnt_sold)
+                    if qnt_sold > 0: all_zero = False
                 else:
                     gross = daily_data['qnt_sold'] * item['sale_price']
                     series.append(date, gross)
+                    if gross > 0: all_zero = False
 
+            # Ensure the series is added even if all values are zero
+            if all_zero:
+                series.append(QDateTime.currentDateTime().toMSecsSinceEpoch(), 0)
 
             sales_lineseries.append(series)
 
         return sales_lineseries
-
-    """def get_lineseries(self, chart, item_name):
-        # Try to find an existing series for the item
-        for series in chart.series():
-            if series.name() == item_name:
-                return series
-
-        # If not found, create a new series
-        new_series = QLineSeries()
-        new_series.setName(item_name)
-        chart.addSeries(new_series)
-        return new_series"""
 
 
 class SalesPeriodWidget(QWidget):
