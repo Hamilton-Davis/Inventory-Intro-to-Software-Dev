@@ -1,9 +1,8 @@
-from PySide6.QtCharts import QChartView, QLineSeries, QChart, QDateTimeAxis, QValueAxis
+from PySide6.QtCharts import QChartView, QLineSeries, QPieSeries, QPieSlice, QChart, QDateTimeAxis, QValueAxis
 from PySide6.QtCore import QRect, QSize, QDate, QDateTime
 from PySide6.QtGui import QIcon, Qt, QFont, QFontMetrics
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QListWidget, QSpacerItem, QSizePolicy,
                                QLabel, QDateEdit, QListWidgetItem)
-from pygments.lexers import q
 
 from tablereader import DatabaseManager
 from datetime import datetime
@@ -65,6 +64,7 @@ class SalesScreen(QWidget):
         self.category_pie_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.category_graph_layout.addWidget(self.category_pie_view)
 
+
         right_spacer = QSpacerItem(10, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.category_graph_layout.addItem(right_spacer)
         self.main_layout.addLayout(self.category_graph_layout)
@@ -72,6 +72,7 @@ class SalesScreen(QWidget):
         # Display empty charts at load
         self.item_sales_list_update()
         self.item_qnt_list_update()
+        self.category_pie_view.setChart(self.create_pieseries())
 
 
     # Adds checkboxes with item names to both item option lists
@@ -128,13 +129,14 @@ class SalesScreen(QWidget):
     def period_updated(self):
         self.item_sales_list_update()
         self.item_qnt_list_update()
+        self.category_pie_view.setChart(self.create_pieseries())
 
 
     # Updates item sales chart with new selections
     def item_sales_list_update(self):
         dates = self.period_widget.get_dates()
         item_names = self.get_checked_items(self.item_sales_list)
-        item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
+        item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])[0]
         chart = self.create_linechart(item_sales, "Sales by Day", y_mode=1)
         self.item_sales_view.setChart(chart)
 
@@ -143,9 +145,29 @@ class SalesScreen(QWidget):
     def item_qnt_list_update(self):
         dates = self.period_widget.get_dates()
         item_names = self.get_checked_items(self.item_qnt_list)
-        item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])
+        item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])[0]
         chart = self.create_linechart(item_sales, "Quantity Sold by Day", y_mode=0)
         self.item_qnt_view.setChart(chart)
+
+
+    # Returns a chart with pie slices for gross sales of each item category
+    def create_pieseries(self):
+        dates = self.period_widget.get_dates()
+        item_names = DatabaseManager.items_between_dates(dates[0], dates[1])
+        gross_category_sales = DatabaseManager.sales_between_dates(tuple(item_names), dates[0], dates[1])[1]
+
+        chart = QChart()
+        chart.setTitle("Sales by Category")
+        pie = QPieSeries()
+        pie.setLabelsVisible(True)
+
+        for index, gross_sales in enumerate(gross_category_sales):
+            category_name = f"Category {index + 1}"
+            slice = QPieSlice(category_name, gross_sales)
+            pie.append(slice)
+
+        chart.addSeries(pie)
+        return chart
 
 
     # Returns a chart with lineseries for each item in item_sales
@@ -204,7 +226,6 @@ class SalesScreen(QWidget):
             x_axis.setTickCount(10)  # Default tick count for larger ranges
 
         return chart
-
 
 
     # Returns a list of lineseries created from item_sales items

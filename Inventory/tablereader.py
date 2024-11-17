@@ -250,12 +250,15 @@ class DatabaseManager:
         return results
 
 
-    # Returns a list of dictionaries containing the daily sales info for each item in item_names list
+    # Returns a tuple of two lists of dictionaries, (sales_data_by_item, gross_category_sales)
     @staticmethod
     def sales_between_dates(item_names, start_date, end_date):
         # Initialize a dictionary to hold sales data for each item
         sales_data_by_item = {name: {'name': name, 'category': "Misc.", 'sale_price': 0, 'daily_sales': []} for name in
                               item_names}
+
+        # Initialize a dictionary to hold gross sales by category
+        gross_category_sales = {}
 
         # Loop through each day between start_date and end_date
         current_date = start_date
@@ -279,11 +282,18 @@ class DatabaseManager:
                     sales_data_by_item[name]['daily_sales'].append(
                         {'date': current_date.strftime("%Y-%m-%d"), 'qnt_sold': qnt_sold})
 
+                    # Calculate gross sales and add to category's gross sales
+                    gross = qnt_sold * sale_price
+                    if category in gross_category_sales:
+                        gross_category_sales[category] += gross
+                    else:
+                        gross_category_sales[category] = gross
+
             # Move to the next day
             current_date += timedelta(days=1)
 
-        # Return the sales data as a list of dictionaries
-        return list(sales_data_by_item.values())
+        # Return the sales data and gross category sales as lists of dictionaries
+        return list(sales_data_by_item.values()), list(gross_category_sales.values())
 
     @staticmethod
     def sales_data(dataframe):
