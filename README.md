@@ -25,7 +25,7 @@ Overview of Software,
     
     pip install PySide6
     pip install openpyxl
-    pip install cryptography.fernet
+    pip install cryptography
     pip install sqlite3
     pip install os
     pip install pandas
