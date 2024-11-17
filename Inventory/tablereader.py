@@ -127,10 +127,15 @@ class DatabaseManager:
     @staticmethod
     def import_db(date=None):
         table_name = ""
+        past_table = False
         if date is None:
             table_name = DatabaseManager.get_most_recent_table()
+            # If most recent table is not today's table (i.e. today's table does not exist)
+            if datetime.strptime(table_name.removeprefix('items_'), "%Y_%m_%d").date() != datetime.now().date():
+                past_table = True
         else:
             table_name = DatabaseManager.get_table_name(date)
+
         conn = DatabaseManager.connect()
         cursor = conn.cursor()
 
@@ -152,6 +157,12 @@ class DatabaseManager:
         cursor.execute(
             f"SELECT name, category, quantity, cost, sale_price, available, date_stocked, contact, qnt_sold FROM {table_name}")
         data = cursor.fetchall()
+        # If table date is not specified, and most recent table is not today's table, set qnt_sold to 0
+        if date is None and past_table:
+            for row in data:
+                list = [value for value in row] # Unpack tuple
+                list[8] = 0
+                data[data.index(row)] = tuple(list) # Assign new tuple to row
 
         conn.close()
         return default_headers, data
