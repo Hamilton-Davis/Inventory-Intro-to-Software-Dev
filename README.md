@@ -26,12 +26,12 @@ Overview of Software,
     pip install PySide6
     pip install openpyxl
     pip install cryptography
-    pip install sqlite3
-    pip install os
     pip install pandas
 
   To Run:
     
     Compile and run main.py from [project root]/Inventory/main.py
+    To generate test data, compile and run dballocation.py from [project root]/Inventory/main.py
+        - Note that running this file more than once will create duplicate items in each genrated table
 
     Executable file to come with final version
