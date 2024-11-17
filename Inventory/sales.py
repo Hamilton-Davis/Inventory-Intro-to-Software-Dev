@@ -1,8 +1,8 @@
 from PySide6.QtCharts import QChartView, QLineSeries, QPieSeries, QPieSlice, QChart, QDateTimeAxis, QValueAxis
-from PySide6.QtCore import QRect, QSize, QDate, QDateTime
+from PySide6.QtCore import QRect, QSize, QDate, QDateTime, QMargins
 from PySide6.QtGui import QIcon, Qt, QFont, QFontMetrics
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QListWidget, QSpacerItem, QSizePolicy,
-                               QLabel, QDateEdit, QListWidgetItem)
+                               QLabel, QDateEdit, QListWidgetItem, QScrollArea)
 
 from tablereader import DatabaseManager
 from datetime import datetime
@@ -158,17 +158,29 @@ class SalesScreen(QWidget):
 
         chart = QChart()
         chart.setTitle("Sales by Category")
+        chart.legend().setVisible(False)
         pie = QPieSeries()
-        pie.setLabelsVisible(True)
 
-        for index, gross_sales in enumerate(gross_category_sales):
-            category_name = f"Category {index + 1}"
-            slice = QPieSlice(category_name, gross_sales)
+        for key in gross_category_sales.keys():
+            category_name = key
+            slice = QPieSlice(category_name, gross_category_sales[key])
+            # Connect signals to display tooltips
+            slice.hovered.connect(lambda hovered, c=chart, s=slice: self.handle_slice_hover(hovered, c, s))
             pie.append(slice)
 
         chart.addSeries(pie)
+
         return chart
 
+    # Hover handler for pie slices
+    def handle_slice_hover(self, hovered, chart, slice):
+        if hovered:
+            slice.setExploded(True)
+            chart.setTitle(f"{slice.label()} - ${slice.value():,.2f} - {slice.percentage() * 100:.1f}% Total Sales")
+        else:
+            slice.setExploded(False)
+            slice.setLabelVisible(False)
+            chart.setTitle("Sales by Category")
 
     # Returns a chart with lineseries for each item in item_sales
     # y_mode determines if y_axis will display quantity sold (y_mode=0) or sales in dollars (y_mode=1)

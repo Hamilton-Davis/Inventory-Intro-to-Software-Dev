@@ -1,48 +1,6 @@
 import sqlite3
-import datetime
-import os
-
-# Function to create a database file with the current date or a specified date
-def get_db_filename(date_offset=0):
-    date = datetime.datetime.now() + datetime.timedelta(days=date_offset)
-    date_str = date.strftime('%Y-%m-%d')
-    db_filename = f'items_{date_str}.db'
-    return db_filename
-
-# Function to create the table if it doesn't exist
-def create_table_if_not_exists(conn):
-    cursor = conn.cursor()
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS items (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        category TEXT,
-        quantity INTEGER,
-        cost REAL,
-        sale_price REAL,
-        available BOOLEAN,
-        date_stocked TEXT,
-        contact TEXT
-    )
-    ''')
-    conn.commit()
-
-# Function to insert an item into a database
-def save_to_db(db_filename, name, category, quantity, cost, sale_price, available, date_stocked, contact):
-    new_file = not os.path.exists(db_filename)
-    conn = sqlite3.connect(db_filename)
-
-    if new_file:
-        create_table_if_not_exists(conn)
-
-    cursor = conn.cursor()
-    cursor.execute('''
-    INSERT INTO items (name, category, quantity, cost, sale_price, available, date_stocked, contact) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (name, category, quantity, cost, sale_price, available, date_stocked, contact))
-
-    conn.commit()
-    conn.close()
+from datetime import datetime, timedelta
+import random
 
 # Test data generation
 test_items = [
@@ -68,11 +26,49 @@ test_items = [
     ('Widget T', 'Pet Supplies', 55, 3.00, 7.50, True, '2024-11-13', 'contact20@example.com')
 ]
 
-# Create the test database file and populate it with items
-db_filename = get_db_filename()
 
-for item in test_items:
-    # Unpack item data and save to the database
-    save_to_db(db_filename, *item)
+# Create multiple tables for a specified date range and insert items with random qnt_sold values.
+def create_tables_and_insert_items(db_name, start_date, end_date, item_lists):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
 
-print("Test database file created with 20 items.")
+    # Generate tables for each date in the range
+    current_date = start_date
+    while current_date <= end_date:
+        # Format the table name as "item_yyyy_MM_dd"
+        table_name = f"items_{current_date.strftime('%Y_%m_%d')}"
+
+        # Create the table if it doesn't already exist
+        cursor.execute(f"""
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                name TEXT,
+                category TEXT,
+                quantity INTEGER,
+                cost REAL,
+                sale_price REAL,
+                available INTEGER,
+                date_stocked TEXT,
+                contact TEXT,
+                qnt_sold INTEGER
+            )
+        """)
+
+        # Insert items into the table with a randomly generated qnt_sold value
+        for item in item_lists:
+            name, category, quantity, cost, sale_price, available, date_stocked, contact = item
+            random_qnt_sold = random.randint(0, quantity)  # Generate a random qnt_sold value
+            cursor.execute(f"""
+                INSERT INTO {table_name} (name, category, quantity, cost, sale_price, available, date_stocked, contact, qnt_sold)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (name, category, quantity, cost, sale_price, available, date_stocked, contact, random_qnt_sold))
+
+        # Move to the next day
+        current_date += timedelta(days=1)
+
+    # Commit changes and close the database connection
+    conn.commit()
+    conn.close()
+
+# Generate test tables
+create_tables_and_insert_items("items.db", datetime.today() - timedelta(days=10), datetime.today(), test_items)

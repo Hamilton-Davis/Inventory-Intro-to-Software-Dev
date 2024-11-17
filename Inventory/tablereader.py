@@ -279,16 +279,19 @@ class DatabaseManager:
             daily_sales_data = DatabaseManager.item_sales_data(item_names, current_date)
 
             # Process daily sales data
-            category = "Misc."
             for item_data in daily_sales_data:
                 name = item_data[0]
-                if category == 'Misc.': category = item_data[1] # Accept any non-default category as new value
+                category = item_data[1]
                 sale_price = max(item_data[2], sale_price) # Accept any non-zero sales_price as new value
                 qnt_sold = item_data[3]
 
                 # Update the dictionary with daily sales
                 if name in sales_data_by_item:
-                    sales_data_by_item[name]['category'] = category  # Update category
+                    # Accept any non-default category as new value
+                    current_category = sales_data_by_item[name]['category']
+                    if current_category == "Misc." and category != "Misc.":
+                        sales_data_by_item[name]['category'] = category  # Update category
+
                     sales_data_by_item[name]['sale_price'] = sale_price  # Update sale_price
                     sales_data_by_item[name]['daily_sales'].append(
                         {'date': current_date.strftime("%Y-%m-%d"), 'qnt_sold': qnt_sold})
@@ -304,7 +307,7 @@ class DatabaseManager:
             current_date += timedelta(days=1)
 
         # Return the sales data and gross category sales as lists of dictionaries
-        return list(sales_data_by_item.values()), list(gross_category_sales.values())
+        return list(sales_data_by_item.values()), gross_category_sales
 
     @staticmethod
     def sales_data(dataframe):
