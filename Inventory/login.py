@@ -1,213 +1,188 @@
 from PySide6.QtCore import Signal, Qt
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QWidget, QCheckBox, QSpacerItem, \
-    QSizePolicy, QApplication
-
+from PySide6.QtWidgets import (
+    QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QWidget,
+    QCheckBox, QSpacerItem, QSizePolicy, QApplication
+)
 
 import dataUtils  # Import utility functions
 
 
-class SecurityQuestionWidget(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.layout = QVBoxLayout(self)
-        self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.title_label = QLabel("Security Question", self)
-        self.title_label.setStyleSheet("font-size: 24px; font-weight: bold;")
-        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout.addWidget(self.title_label)
-
-        # Security question
-        self.security_question_label = QLabel("What is your favorite color?", self)  # Example question
-        self.layout.addWidget(self.security_question_label)
-
-        # Answer input field
-        self.answer_input = QLineEdit(self)
-        self.answer_input.setFixedSize(300, 50)
-        self.layout.addWidget(self.answer_input)
-
-        # Submit button
-        self.submit_button = QPushButton("Submit", self)
-        self.submit_button.setFixedSize(300, 40)
-        self.layout.addWidget(self.submit_button)
-
-        # Spacer
-        self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
-
-        # Back button to return to the login screen
-        self.back_button = QPushButton("Back", self)
-        self.back_button.setFixedSize(300, 40)
-        self.layout.addWidget(self.back_button)
-
-        self.back_button.clicked.connect(self.reset_to_login)
-        self.submit_button.clicked.connect(self.check_security_answer)
-
-    def check_security_answer(self):
-        # Check the security question answer (example logic)
-        if self.answer_input.text() == "blue":  # Replace with actual answer check
-            self.parent().show_message("Security Question", "Correct answer!")
-        else:
-            self.parent().show_message("Security Question", "Incorrect answer. Try again.")
-
-    def reset_to_login(self):
-        self.parent().reset_login_fields()  # Call parent method to reset login fields
-        self.parent().hide_security_question()
-
-
 class LoginWindow(QWidget):
     login_success = Signal()  # Signal emitted when login is successful
+    logout_request = Signal()  # Signal emitted when logout is requested
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Login System")  # Set window title
         self.setGeometry(100, 100, 400, 300)  # Set window size and position
 
+        # Load stored user data (or defaults if file doesn't exist)
+        self.user_data = dataUtils.load_user_data()  # Move this line here
+
         self.layout = QVBoxLayout(self)  # Main vertical layout for login screen
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center-align layout
 
-        self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))  # Add spacer to push content down
+        self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))  # Spacer
 
+        # Title
         self.title_label = QLabel("Sign in", self)
-        self.title_label.setStyleSheet("font-size: 32px; font-weight: bold;")  # Set title style
-        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center-align title
-        self.layout.addWidget(self.title_label)  # Add title label to layout
+        self.title_label.setStyleSheet("font-size: 32px; font-weight: bold;")
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(self.title_label)
 
+        # Username field
         self.label_username = QLabel("Username:", self)
-        self.layout.addWidget(self.label_username)  # Add username label to layout
-        self.entry_username = QLineEdit(self)  # Username input field
-        self.entry_username.setFixedSize(300, 50)  # Set size for input field
-        self.layout.addWidget(self.entry_username)  # Add input field to layout
+        self.layout.addWidget(self.label_username)
+        self.entry_username = QLineEdit(self)
+        self.entry_username.setFixedSize(300, 50)
+        self.layout.addWidget(self.entry_username)
 
+        # Password field
         self.label_password = QLabel("Password:", self)
-        self.layout.addWidget(self.label_password)  # Add password label to layout
-        self.entry_password = QLineEdit(self)  # Password input field
-        self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)  # Mask password input
-        self.entry_password.setFixedSize(300, 50)  # Set size for input field
-        self.layout.addWidget(self.entry_password)  # Add input field to layout
+        self.layout.addWidget(self.label_password)
+        self.entry_password = QLineEdit(self)
+        self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.entry_password.setFixedSize(300, 50)
+        self.layout.addWidget(self.entry_password)
 
-        self.show_password_checkbox = QCheckBox("Show Password", self)  # Checkbox to toggle password visibility
-        # Connect checkbox to toggle method
+        # Show password checkbox
+        self.show_password_checkbox = QCheckBox("Show Password", self)
         self.show_password_checkbox.stateChanged.connect(self.toggle_password_visibility)
-        self.layout.addWidget(self.show_password_checkbox)  # Add checkbox to layout
+        self.layout.addWidget(self.show_password_checkbox)
 
-        self.login_button = QPushButton("Login", self)  # Login button
-        self.login_button.setFixedSize(300, 40)  # Set button size
-        self.layout.addWidget(self.login_button)  # Add login button to layout
-        self.login_button.clicked.connect(self.check_login)  # Connect button to login check method
+        # Login button
+        self.login_button = QPushButton("Login", self)
+        self.login_button.setFixedSize(300, 40)
+        self.login_button.clicked.connect(self.check_login)
+        self.layout.addWidget(self.login_button)
 
         # Forgot button
         self.forgot_button = QPushButton("Forgot Username or Password", self)
         self.forgot_button.setFixedSize(300, 40)
+        self.forgot_button.clicked.connect(self.toggle_security_question)
         self.layout.addWidget(self.forgot_button)
-        self.forgot_button.clicked.connect(self.show_security_question)
+
+        # Security question widgets (hidden by default)
+        self.security_question_label = QLabel(self.user_data.get('hint', 'No hint available'), self)  # Fix this line
+        self.security_question_label.hide()
+        self.layout.addWidget(self.security_question_label)
+
+        self.answer_input = QLineEdit(self)
+        self.answer_input.setFixedSize(300, 50)
+        self.answer_input.hide()
+        self.layout.addWidget(self.answer_input)
+
+        self.submit_button = QPushButton("Submit", self)
+        self.submit_button.setFixedSize(300, 40)
+        self.submit_button.hide()
+        self.submit_button.clicked.connect(self.check_security_answer)
+        self.layout.addWidget(self.submit_button)
 
         # Exit button
-        self.exit_button = QPushButton("Exit", self)  # Exit button
-        self.exit_button.setFixedSize(300, 40)  # Set button size
-        self.exit_button.clicked.connect(QApplication.quit)  # Connect button to quit application
-        self.layout.addWidget(self.exit_button)  # Add exit button to layout
+        self.exit_button = QPushButton("Exit", self)
+        self.exit_button.setFixedSize(300, 40)
+        self.exit_button.clicked.connect(QApplication.quit)
+        self.layout.addWidget(self.exit_button)
 
-        # Trigger login when pressing Enter in username and password field
-        self.entry_username.returnPressed.connect(self.check_login)
-        self.entry_password.returnPressed.connect(self.check_login)
-
-        self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))  # Spacer at bottom of layout
-
-        # Load stored user data (or defaults if file doesn't exist)
-        self.user_data = dataUtils.load_user_data()  # Load user credentials
-
-        # Create security question widget but keep it hidden initially
-        self.security_widget = SecurityQuestionWidget(self)
-        self.security_widget.hide()  # Hide it by default
-        self.layout.addWidget(self.security_widget)
+        self.layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
     def check_login(self):
-        username = self.entry_username.text()  # Get entered username
-        password = self.entry_password.text()  # Get entered password
+        username = self.entry_username.text()
+        password = self.entry_password.text()
 
-        message_box = QMessageBox(self)  # Create message box for feedback
-        message_box.setStyleSheet("QLabel{font-size: 14px;}")  # Set message box style
+        message_box = QMessageBox(self)
+        message_box.setStyleSheet("QLabel{font-size: 14px;}")
 
-        # Check if entered username and password match stored credentials
         if username == self.user_data['username'] and password == self.user_data['password']:
-            message_box.setIcon(QMessageBox.Information)  # Success icon
-            message_box.setWindowTitle("Login Success")  # Success message title
-            message_box.setText("Welcome!")  # Success message text
-            message_box.setFixedSize(300, 150)  # Set message box size
-            message_box.exec()  # Display message box
+            message_box.setIcon(QMessageBox.Information)
+            message_box.setWindowTitle("Login Success")
+            message_box.setText("Welcome!")
+            message_box.setFixedSize(300, 150)
+            message_box.exec()
 
-            # Disable input fields and buttons after successful login
-            self.entry_username.setDisabled(True)
-            self.entry_password.setDisabled(True)
-            self.login_button.setDisabled(True)
-            self.show_password_checkbox.setDisabled(True)
+            self.entry_username.clear()
+            self.entry_password.clear()
+            self.answer_input.clear()
 
-            self.login_success.emit()  # Emit login success signal
+            self.login_success.emit()  # Emit success signal
         else:
-            # Show error message if login fails
-            message_box.setIcon(QMessageBox.Warning)  # Warning icon
-            message_box.setWindowTitle("Login Failed")  # Failure message title
-            message_box.setText("Invalid username or password.")  # Failure message text
-            message_box.setFixedSize(300, 150)  # Set message box size
-            message_box.exec()  # Display message box
+            message_box.setIcon(QMessageBox.Warning)
+            message_box.setWindowTitle("Login Failed")
+            message_box.setText("Invalid username or password.")
+            message_box.setFixedSize(300, 150)
+            message_box.exec()
 
-    # Toggle password visibility (checkbox)
     def toggle_password_visibility(self, state):
-        if state == 2:  # If checkbox is checked, show password
+        if state == 2:
             self.entry_password.setEchoMode(QLineEdit.EchoMode.Normal)
         else:
             self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)
 
-    def reset_login_fields(self):
-        # Re-enable input fields and buttons for next login attempt
-        self.entry_username.setDisabled(False)
-        self.entry_password.setDisabled(False)
-        self.login_button.setDisabled(False)
-        self.show_password_checkbox.setDisabled(False)
-        # Clear input fields
-        self.entry_username.clear()
-        self.entry_password.clear()
+    def toggle_security_question(self):
+        visible = self.security_question_label.isVisible()
+        self.security_question_label.setVisible(not visible)
+        self.answer_input.setVisible(not visible)
+        self.submit_button.setVisible(not visible)
 
-    def reload(self):
-        # Reset login fields if needed
-        self.reset_login_fields()
-        # Reload updated user data from file
-        self.user_data = dataUtils.load_user_data()
-
-    def show_security_question(self):
-        # Hide the main login UI elements
-        self.title_label.hide()
-        self.label_username.hide()
-        self.entry_username.hide()
-        self.label_password.hide()
-        self.entry_password.hide()
-        self.show_password_checkbox.hide()
-        self.login_button.hide()
-        self.forgot_button.hide()
-        self.exit_button.hide()
-
-        # Show the security question widget
-        self.security_widget.show()
-
-    def hide_security_question(self):
-        # Hide the security question and return to the login form
-        self.security_widget.hide()
-        self.title_label.show()
-        self.label_username.show()
-        self.entry_username.show()
-        self.label_password.show()
-        self.entry_password.show()
-        self.show_password_checkbox.show()
-        self.login_button.show()
-        self.forgot_button.show()
-        self.exit_button.show()
+    def check_security_answer(self):
+        if self.answer_input.text() == self.user_data['answer']:  # Replace with actual validation logic
+            self.show_message("Security Question", "Welcome! Please go to settings to update username/password.")
+            self.entry_username.clear()
+            self.entry_password.clear()
+            self.answer_input.clear()
+            self.login_success.emit()  # Emit success signal
+        else:
+            self.show_message("Security Question", "Incorrect answer. Try again.")
 
     def show_message(self, title, message):
-        # Helper function to show a message box
         message_box = QMessageBox(self)
         message_box.setWindowTitle(title)
         message_box.setText(message)
         message_box.setFixedSize(300, 150)
         message_box.exec()
 
+    def reset_login_fields(self):
+        """Reset login input fields and any other related UI elements."""
+        self.entry_username.clear()
+        self.entry_password.clear()
+        self.entry_username.setEnabled(True)
+        self.entry_password.setEnabled(True)
+        self.login_button.setEnabled(True)
+        self.show_password_checkbox.setChecked(False)
+        self.show_password_checkbox.setEnabled(True)
+        self.security_question_label.hide()
+        self.answer_input.hide()
+        self.submit_button.hide()
+
+    def reload(self):
+        """Reload the login screen and reset user data."""
+        self.reset_login_fields()
+        self.user_data = dataUtils.load_user_data()
+
+    def logout(self):
+        """Handle user logout and reset the login screen."""
+        # Clear login fields
+        self.entry_username.clear()
+        self.entry_password.clear()
+        self.entry_username.setEnabled(True)
+        self.entry_password.setEnabled(True)
+        self.login_button.setEnabled(True)
+        self.show_password_checkbox.setChecked(False)
+        self.show_password_checkbox.setEnabled(True)
+
+        # Hide the security question fields
+        self.security_question_label.hide()
+        self.answer_input.hide()
+        self.submit_button.hide()
+
+        # Reload user data to ensure we have the latest security question and answer
+        self.user_data = dataUtils.load_user_data()  # Reload user data to get the latest info
+
+        # Update the security question label with the new hint
+        self.security_question_label.setText(self.user_data.get('hint', 'No hint available'))
+
+        # Optionally reset the answer field
+        self.answer_input.clear()
+
+        # Emit logout signal
+        self.logout_request.emit()
