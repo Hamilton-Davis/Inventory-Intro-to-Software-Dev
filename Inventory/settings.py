@@ -211,8 +211,8 @@ class SettingsWidget(QWidget):
             self.change_answer_input.clear()
             return
 
-        self.user_data['hint'] = new_hint
-        self.user_data['answer'] = new_answer
+        self.user_data['hint'] = new_hint.capitalize()
+        self.user_data['answer'] = new_answer.lower()
         dataUtils.save_user_data(self.user_data['username'], self.user_data['password'], self.user_data['hint'], self.user_data['answer'])
         self.data_updated.emit()
         QMessageBox.information(self, "Success", "Security question and answer updated!")

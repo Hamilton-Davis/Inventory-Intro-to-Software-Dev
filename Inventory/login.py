@@ -136,13 +136,14 @@ class LoginWindow(QWidget):
             self.show_message("Error", "No security question has been made.")
             return  # Prevent further actions if no security question exists
 
-        if self.answer_input.text() == self.user_data['answer']:  # Validate with actual answer
+        if self.answer_input.text().lower() == self.user_data['answer']:  # Validate with actual answer
             self.show_message("Security Question", "Welcome! Please go to settings to update username/password.")
             self.entry_username.clear()
             self.entry_password.clear()
             self.answer_input.clear()
             self.login_success.emit()  # Emit success signal
         else:
+            self.answer_input.clear()
             self.show_message("Security Question", "Incorrect answer. Try again.")
 
     def show_message(self, title, message):

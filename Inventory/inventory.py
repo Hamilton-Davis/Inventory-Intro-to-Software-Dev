@@ -183,7 +183,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
             for row in range(self.tableWidget.rowCount()):
                 if self.tableWidget.item(row, HeaderIndex.QNT_SOLD.value).text() == "":
                     self.tableWidget.item(row, HeaderIndex.QNT_SOLD.value).setText("0")
-                available = int(self.tableWidget.item(row, HeaderIndex.AVAILABLE.value).text()) > 0
+                available = int(self.tableWidget.item(row, HeaderIndex.QUANTITY.value).text()) > 0
                 self.tableWidget.item(row, HeaderIndex.AVAILABLE.value).setText(str(available))
 
             DatabaseManager.export_table(self.tableWidget)
