@@ -132,7 +132,7 @@ class SalesScreen(QWidget):
 
     # Updates charts when sales period dates are updated
     def period_updated(self):
-        self.update_charts()
+        self.reload()
 
 
     # Updates content in all charts

@@ -90,28 +90,42 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
     # row_data is an optional parameter to set values of row
     def add_table_row(self, row_data=None):
         # Create new row
-        row_index = self.tableWidget.rowCount()
-        self.tableWidget.insertRow(row_index)
+        row = self.tableWidget.rowCount()
+        self.tableWidget.insertRow(row)
 
         # If row_data is provided, use its values; otherwise, default to "New Item" and blank spaces
         for column in range(self.tableWidget.columnCount()):
+            isImport = False
             # Determine if column is "Available" column
             if column == HeaderIndex.AVAILABLE.value:
                 checkbox = QCheckBox()
-            # Determine the item value based on row_data or defaults
-            isImport = False
-            if row_data and column < len(row_data):
-                isImport = True
-                item_data = row_data[column]  # Use value from row_data if available
-                if isinstance(item_data, (int, float)): # Convert numbers to strings
-                    item_data = str(item_data)
-            else:
-                item_data = "New Item" if column == 0 else ""  # Default values
+                if row_data and column < len(row_data):
+                    isImport = True
+                    checkbox.setChecked(row_data[HeaderIndex.QUANTITY.value] > 0)
+                else:
+                    checkbox.setChecked(False)
 
-            # Add item to table
-            item = QTableWidgetItem(item_data)
-            self.tableWidget.setItem(row_index, column, item)
-            if not isImport: item.setBackground(QColor("light green")) # Mark empty added row with green
+                # Add layout to center checkbox in cell
+                widget = QWidget()
+                layout = QVBoxLayout(widget)
+                layout.addWidget(checkbox)
+                layout.setAlignment(Qt.AlignCenter)
+                self.tableWidget.setCellWidget(row, column, widget)
+                if not isImport: self.tableWidget.cellWidget(row, column).setBackground(QColor("light green"))  # Mark empty added row with green
+
+            else:
+                if row_data and column < len(row_data):
+                    isImport = True
+                    item_data = row_data[column]
+                    if isinstance(item_data, (int, float)): # Convert numbers to strings
+                        item_data = str(item_data)
+                else:
+                    item_data = "New Item" if column == 0 else ""
+
+                # Add item to table
+                item = QTableWidgetItem(item_data)
+                self.tableWidget.setItem(row, column, item)
+                if not isImport: item.setBackground(QColor("light green")) # Mark empty added row with green
 
 
     # Adds new column to table
