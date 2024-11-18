@@ -86,13 +86,11 @@ class SettingsWidget(QWidget):
         self.change_hint_input = QLineEdit(self)
         self.change_hint_input.setPlaceholderText("Enter a security question")
         self.change_hint_input.setFixedSize(200, 40)
-        self.change_hint_input.setText(self.user_data.get("hint", ""))  # Pre-fill with the existing hint
         grid_layout.addWidget(self.change_hint_input, 1, 2)
 
         self.change_answer_input = QLineEdit(self)
         self.change_answer_input.setPlaceholderText("Enter answer")
         self.change_answer_input.setFixedSize(200, 40)
-        self.change_answer_input.setText(self.user_data.get("answer", ""))  # Pre-fill with the existing answer
         grid_layout.addWidget(self.change_answer_input, 2, 2)
 
         self.change_hint_button = QPushButton("Change Security Question", self)
@@ -138,8 +136,7 @@ class SettingsWidget(QWidget):
         self.change_hint_input.clear()
         self.change_answer_input.clear()
 
-        # Method to handle home button click
-
+    # Method to handle home button click
     def on_home_button_click(self):
         # Clear all input fields when the Home button is clicked
         self.clear_all_fields()
@@ -190,7 +187,7 @@ class SettingsWidget(QWidget):
                 self.confirm_password_input.clear()
                 return
             self.user_data['password'] = new_password
-            dataUtils.save_user_data(self.user_data['username'], self.user_data['password'], self.user_data.get('hint'), self.user_data.get('answer'))
+            dataUtils.save_user_data(self.user_data['username'], self.user_data['password'], self.user_data['hint'], self.user_data['answer'])
             self.data_updated.emit()
             QMessageBox.information(self, "Success", "Password changed successfully!")
             self.change_password_input.clear()
@@ -203,12 +200,20 @@ class SettingsWidget(QWidget):
         new_hint = self.change_hint_input.text()
         new_answer = self.change_answer_input.text()
         if not new_hint or not new_answer:
+            self.change_answer_input.clear()
+            self.change_hint_input.clear()
             QMessageBox.warning(self, "Error", "Please fill both fields for the security question.")
+            return
+
+        if not confirmation_dialog("Are you sure you want to use this security hint?", "Confirm Security Hint Change",
+                                   QMessageBox.Question):
+            self.change_hint_input.clear()
+            self.change_answer_input.clear()
             return
 
         self.user_data['hint'] = new_hint
         self.user_data['answer'] = new_answer
-        dataUtils.save_user_data(self.user_data['username'], self.user_data['password'], new_hint, new_answer)
+        dataUtils.save_user_data(self.user_data['username'], self.user_data['password'], self.user_data['hint'], self.user_data['answer'])
         self.data_updated.emit()
         QMessageBox.information(self, "Success", "Security question and answer updated!")
 

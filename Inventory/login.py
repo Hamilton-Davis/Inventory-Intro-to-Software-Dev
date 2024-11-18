@@ -119,13 +119,24 @@ class LoginWindow(QWidget):
             self.entry_password.setEchoMode(QLineEdit.EchoMode.Password)
 
     def toggle_security_question(self):
+        # Check if a security question has been set
+        if not self.user_data.get('hint'):
+            self.show_message("Error", "No security question has been made.")
+            return  # Prevent further actions if no security question exists
+
+        # Proceed with showing/hiding the security question and answer fields
         visible = self.security_question_label.isVisible()
         self.security_question_label.setVisible(not visible)
         self.answer_input.setVisible(not visible)
         self.submit_button.setVisible(not visible)
 
     def check_security_answer(self):
-        if self.answer_input.text() == self.user_data['answer']:  # Replace with actual validation logic
+        # Check if a security question has been set
+        if not self.user_data.get('hint'):
+            self.show_message("Error", "No security question has been made.")
+            return  # Prevent further actions if no security question exists
+
+        if self.answer_input.text() == self.user_data['answer']:  # Validate with actual answer
             self.show_message("Security Question", "Welcome! Please go to settings to update username/password.")
             self.entry_username.clear()
             self.entry_password.clear()
@@ -156,8 +167,15 @@ class LoginWindow(QWidget):
 
     def reload(self):
         """Reload the login screen and reset user data."""
-        self.reset_login_fields()
-        self.user_data = dataUtils.load_user_data()
+        self.reset_login_fields()  # Reset all fields
+        self.user_data = dataUtils.load_user_data()  # Reload user data
+
+        # Update the security question label with the new hint
+        self.security_question_label.setText(self.user_data.get('hint', 'No hint available'))
+        self.security_question_label.hide()  # Ensure it's hidden initially
+
+        # Optionally, clear the answer field
+        self.answer_input.clear()
 
     def logout(self):
         """Handle user logout and reset the login screen."""
