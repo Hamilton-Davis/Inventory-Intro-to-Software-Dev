@@ -29,7 +29,7 @@ class CentralWidget(QWidget):
         self.main_layout = QVBoxLayout(self)
 
         # Create and configure title label
-        self.title_label = QLabel("Main Menu", self)
+        self.title_label = QLabel("QuickStock", self)
         self.title_label.setFont(QFont("Arial", 60))  # Set font and size
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center align text
         self.main_layout.addWidget(self.title_label)  # Add title label to layout
