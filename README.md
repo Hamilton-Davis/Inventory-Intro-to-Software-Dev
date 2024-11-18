@@ -1,10 +1,10 @@
-# Inventory Software, Developed in Python
+# QuickStock, Developed in Python
 
 Developed by Students at University of Colorado, Colorado Springs.
 
-Overview of Software, 
+Overview of Software: 
 
-  A local inventory managment system to be used by small buisnesses as an alternative to payed managment systems used by large corperations. 
+  A local inventory management system to be used by small businesses as an alternative to paid management systems used by large corporations. 
 
   Features:
 

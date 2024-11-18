@@ -20,7 +20,7 @@ class MainWidget(QWidget):
 
         # Create a QStackedWidget to manage different screens
         self.stackedWidget = QStackedWidget()
-        self.setWindowTitle("Inventory Program")
+        self.setWindowTitle("QuickStock")
 
         # Create layout to hold stacked widget
         self.mainLayout = QVBoxLayout()
