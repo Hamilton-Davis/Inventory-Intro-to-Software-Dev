@@ -1,11 +1,12 @@
+from datetime import datetime
+
 from PySide6.QtCharts import QChartView, QLineSeries, QPieSeries, QPieSlice, QChart, QDateTimeAxis, QValueAxis
-from PySide6.QtCore import QRect, QSize, QDate, QDateTime, QMargins
+from PySide6.QtCore import QRect, QSize, QDate, QDateTime
 from PySide6.QtGui import QIcon, Qt, QFont, QFontMetrics
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QListWidget, QSpacerItem, QSizePolicy,
-                               QLabel, QDateEdit, QListWidgetItem, QScrollArea)
+                               QLabel, QDateEdit, QListWidgetItem)
 
 from tablereader import DatabaseManager
-from datetime import datetime
 
 
 class SalesScreen(QWidget):
@@ -257,7 +258,7 @@ class SalesScreen(QWidget):
                     series.append(date, qnt_sold)
                     if qnt_sold > 0: all_zero = False
                 else:
-                    gross = daily_data['qnt_sold'] * item['sale_price']
+                    gross = float(daily_data['qnt_sold']) * item['sale_price']
                     series.append(date, gross)
                     if gross > 0: all_zero = False
 

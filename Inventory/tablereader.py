@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
 import sqlite3
+from datetime import datetime, timedelta
 from enum import Enum
 
 import pandas as pd
@@ -131,8 +131,11 @@ class DatabaseManager:
         if date is None:
             table_name = DatabaseManager.get_most_recent_table()
             # If most recent table is not today's table (i.e. today's table does not exist)
-            if datetime.strptime(table_name.removeprefix('items_'), "%Y_%m_%d").date() != datetime.now().date():
-                past_table = True
+            if table_name: # Check if any table name was returned (i.e. any table exists)
+                if datetime.strptime(table_name.removeprefix('items_'), "%Y_%m_%d").date() != datetime.now().date():
+                    past_table = True
+            else:
+                table_name = DatabaseManager.get_table_name()  # Returns a table name with today's date
         else:
             table_name = DatabaseManager.get_table_name(date)
 
