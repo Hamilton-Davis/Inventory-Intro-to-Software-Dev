@@ -1,8 +1,9 @@
+from datetime import datetime
+
 from PySide6.QtCore import QRect, Qt, QDate, QSize
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QHeaderView, QWidget, QTableWidgetItem, QTableWidget, QVBoxLayout, QDateEdit, QSpacerItem, \
-    QSizePolicy, QHBoxLayout, QPushButton
-from datetime import datetime
+    QSizePolicy, QHBoxLayout, QPushButton, QCheckBox
 
 import popups
 from tablereader import DatabaseManager, HeaderIndex
@@ -94,6 +95,9 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
         # If row_data is provided, use its values; otherwise, default to "New Item" and blank spaces
         for column in range(self.tableWidget.columnCount()):
+            # Determine if column is "Available" column
+            if column == HeaderIndex.AVAILABLE.value:
+                checkbox = QCheckBox()
             # Determine the item value based on row_data or defaults
             isImport = False
             if row_data and column < len(row_data):
@@ -108,6 +112,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
             item = QTableWidgetItem(item_data)
             self.tableWidget.setItem(row_index, column, item)
             if not isImport: item.setBackground(QColor("light green")) # Mark empty added row with green
+
 
     # Adds new column to table
     # Used for overwriting default columns with file
@@ -174,6 +179,13 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
     def saveButton_clicked(self):
         save_test = self.valid_save()
         if save_test[0]:
+            # Set default values for qnt_sold and available
+            for row in range(self.tableWidget.rowCount()):
+                if self.tableWidget.item(row, HeaderIndex.QNT_SOLD.value).text() == "":
+                    self.tableWidget.item(row, HeaderIndex.QNT_SOLD.value).setText("0")
+                available = int(self.tableWidget.item(row, HeaderIndex.AVAILABLE.value).text()) > 0
+                self.tableWidget.item(row, HeaderIndex.AVAILABLE.value).setText(str(available))
+
             DatabaseManager.export_table(self.tableWidget)
             self.reset_table()
         else:
@@ -195,6 +207,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
 
         self.search_table()
 
+
     def searchCategoryBar_textChanged(self):
         # Changes formatting for placeholder vs. user text
         if not self.searchCategoryBar.text() == "":
@@ -207,6 +220,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
             font = self.searchCategoryBar.font()
             font.setItalic(True)
             self.searchCategoryBar.setFont(font)
+
 
     # Searches tableWidget for item names containing user-input string
     def search_table(self):

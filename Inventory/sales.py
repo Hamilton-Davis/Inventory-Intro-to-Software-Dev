@@ -33,47 +33,51 @@ class SalesScreen(QWidget):
         self.nav_layout.addWidget(self.period_widget)
         self.main_layout.addLayout(self.nav_layout)
 
-        # Create item graphs layout
-        self.item_graph_layout = QHBoxLayout()
+        # Create item charts layout
+        self.item_chart_layout = QHBoxLayout()
         self.item_sales_view = QChartView()
         self.item_sales_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.item_graph_layout.addWidget(self.item_sales_view)
+        self.item_chart_layout.addWidget(self.item_sales_view)
 
-        self.item_sales_list = QListWidget() # List of options for sales graph
+        self.item_sales_list = QListWidget() # List of options for sales chart
         self.item_sales_list.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.item_graph_layout.addWidget(self.item_sales_list)
-        self.item_sales_list.itemChanged.connect(self.item_sales_list_update)
+        self.item_chart_layout.addWidget(self.item_sales_list)
+        self.item_sales_list.itemChanged.connect(self.update_charts)
 
         self.item_qnt_view = QChartView()
         self.item_qnt_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.item_graph_layout.addWidget(self.item_qnt_view)
+        self.item_chart_layout.addWidget(self.item_qnt_view)
 
-        self.item_qnt_list = QListWidget() # List of options for quantity graph
+        self.item_qnt_list = QListWidget() # List of options for quantity chart
         self.item_qnt_list.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.item_graph_layout.addWidget(self.item_qnt_list)
-        self.item_qnt_list.itemChanged.connect(self.item_qnt_list_update)
+        self.item_chart_layout.addWidget(self.item_qnt_list)
+        self.item_qnt_list.itemChanged.connect(self.update_charts)
 
         self.setup_lists()
-        self.main_layout.addLayout(self.item_graph_layout)
+        self.main_layout.addLayout(self.item_chart_layout)
 
-        # Create category sales graph layout
-        self.category_graph_layout = QHBoxLayout()
+        # Create category sales chart layout
+        self.category_chart_layout = QHBoxLayout()
         left_spacer = QSpacerItem(10, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.category_graph_layout.addItem(left_spacer)
+        self.category_chart_layout.addItem(left_spacer)
 
         self.category_pie_view = QChartView()
         self.category_pie_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.category_graph_layout.addWidget(self.category_pie_view)
+        self.category_chart_layout.addWidget(self.category_pie_view)
 
 
         right_spacer = QSpacerItem(10, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.category_graph_layout.addItem(right_spacer)
-        self.main_layout.addLayout(self.category_graph_layout)
+        self.category_chart_layout.addItem(right_spacer)
+        self.main_layout.addLayout(self.category_chart_layout)
 
         # Display empty charts at load
-        self.item_sales_list_update()
-        self.item_qnt_list_update()
-        self.category_pie_view.setChart(self.create_pieseries())
+        self.update_charts()
+
+
+    # Reloads list options and charts
+    def reload(self):
+        self.setup_lists()
+        self.update_charts()
 
 
     # Adds checkboxes with item names to both item option lists
@@ -128,33 +132,41 @@ class SalesScreen(QWidget):
 
     # Updates charts when sales period dates are updated
     def period_updated(self):
-        self.item_sales_list_update()
-        self.item_qnt_list_update()
-        self.category_pie_view.setChart(self.create_pieseries())
+        self.update_charts()
 
+
+    # Updates content in all charts
+    def update_charts(self):
+        dates = self.period_widget.get_dates()
+        item_sales_names = self.get_checked_items(self.item_sales_list)
+        item_qnt_names = self.get_checked_items(self.item_qnt_list)
+        pie_names = DatabaseManager.items_between_dates(dates[0], dates[1])
+        self.update_item_sales(dates, item_sales_names)
+        self.update_item_qnt(dates, item_qnt_names)
+        self.update_pie(dates, pie_names)
+        
 
     # Updates item sales chart with new selections
-    def item_sales_list_update(self):
-        dates = self.period_widget.get_dates()
-        item_names = self.get_checked_items(self.item_sales_list)
+    def update_item_sales(self, dates, item_names):
         item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])[0]
         chart = self.create_linechart(item_sales, "Sales by Day", y_mode=1)
         self.item_sales_view.setChart(chart)
 
 
     # Updates item qnt chart with new selections
-    def item_qnt_list_update(self):
-        dates = self.period_widget.get_dates()
-        item_names = self.get_checked_items(self.item_qnt_list)
+    def update_item_qnt(self, dates, item_names):
         item_sales = DatabaseManager.sales_between_dates(item_names, dates[0], dates[1])[0]
         chart = self.create_linechart(item_sales, "Quantity Sold by Day", y_mode=0)
         self.item_qnt_view.setChart(chart)
 
 
+    # Updates pie chart
+    def update_pie(self, dates, item_names):
+        self.category_pie_view.setChart(self.create_pieseries(dates, item_names))
+
+
     # Returns a chart with pie slices for gross sales of each item category
-    def create_pieseries(self):
-        dates = self.period_widget.get_dates()
-        item_names = DatabaseManager.items_between_dates(dates[0], dates[1])
+    def create_pieseries(self, dates, item_names):
         gross_category_sales = DatabaseManager.sales_between_dates(tuple(item_names), dates[0], dates[1])[1]
 
         chart = QChart()

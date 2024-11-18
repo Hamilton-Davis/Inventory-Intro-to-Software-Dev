@@ -90,7 +90,7 @@ class MainWidget(QWidget):
 
     # Changes the displayed widget to sales_screen
     def show_sales_screen(self):
-        self.sales_screen.setup_lists()
+        self.sales_screen.reload()
         self.stackedWidget.setCurrentWidget(self.sales_screen)
 
     # Changes the displayed widget to settings_screen

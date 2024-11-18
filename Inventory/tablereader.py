@@ -300,7 +300,7 @@ class DatabaseManager:
                         {'date': current_date.strftime("%Y-%m-%d"), 'qnt_sold': qnt_sold})
 
                     # Calculate gross sales and add to category's gross sales
-                    gross = qnt_sold * sale_price
+                    gross = float(qnt_sold) * sale_price
                     if category in gross_category_sales:
                         gross_category_sales[category] += gross
                     else:
