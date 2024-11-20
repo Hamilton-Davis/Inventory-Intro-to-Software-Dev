@@ -48,7 +48,7 @@ class SettingsWidget(QWidget):
         grid_layout.addWidget(self.confirm_username_input, 2, 0)
 
         self.change_username_button = QPushButton("Change Username", self)
-        self.change_username_button.setFixedSize(150, 40)
+        self.change_username_button.setFixedSize(200, 40)
         self.change_username_button.clicked.connect(self.change_username)
         grid_layout.addWidget(self.change_username_button, 3, 0)
 
@@ -74,7 +74,7 @@ class SettingsWidget(QWidget):
         grid_layout.addWidget(self.show_password_checkbox, 3, 1)
 
         self.change_password_button = QPushButton("Change Password", self)
-        self.change_password_button.setFixedSize(150, 40)
+        self.change_password_button.setFixedSize(200, 40)
         self.change_password_button.clicked.connect(self.change_password)
         grid_layout.addWidget(self.change_password_button, 4, 1)
 
@@ -94,7 +94,7 @@ class SettingsWidget(QWidget):
         grid_layout.addWidget(self.change_answer_input, 2, 2)
 
         self.change_hint_button = QPushButton("Change Security Question", self)
-        self.change_hint_button.setFixedSize(150, 40)
+        self.change_hint_button.setFixedSize(200, 40)
         self.change_hint_button.clicked.connect(self.change_security_question)
         grid_layout.addWidget(self.change_hint_button, 3, 2)
 
@@ -233,4 +233,3 @@ class SettingsWidget(QWidget):
         dataUtils.save_user_data(default_username, default_password, "", "")
         self.data_updated.emit()
         QMessageBox.information(self, "Reset Successful", "Credentials reset to default.")
-
