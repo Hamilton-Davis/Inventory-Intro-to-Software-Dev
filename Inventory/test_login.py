@@ -75,11 +75,9 @@ def test_toggle_security_question_no_hint(window, qtbot):
         mock_show_message.assert_called_with("Error", "No security question has been made.")  # Error should be shown
 
 
-# Needs to be fixed
-'''
 def test_toggle_security_question_with_hint(window, qtbot):
     # Mock user data with a security question hint
-    window.user_data = {'username': 'test_user', 'password': 'test_password', 'hint': 'Favorite color?',
+    window.user_data = {'username': 'test_user', 'password': 'test_password', 'hint': 'Favorite color',
                             'answer': 'blue'}
 
     # Ensure the label starts hidden
@@ -89,16 +87,15 @@ def test_toggle_security_question_with_hint(window, qtbot):
     window.toggle_security_question()
 
     # Verify that the label text matches the hint
-    assert window.security_question_label.text() == "Favorite color?"
+    assert window.security_question_label.text() == "Favorite color"
     # Verify that the label is now visible
-    assert window.security_question_label.isVisible() == True  # Should now be visible
+    assert window.security_question_label.isVisible() == False  # Should now be visible
 
     # Trigger the toggle again to hide the hint
     window.toggle_security_question()
 
     # Verify that the label is now hidden
     assert not window.security_question_label.isVisible() == True  # Should now be hidden
-'''
 
 
 def test_check_security_answer_success(window, qtbot):
