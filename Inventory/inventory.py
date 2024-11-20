@@ -111,7 +111,6 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
                 layout.addWidget(checkbox)
                 layout.setAlignment(Qt.AlignCenter)
                 self.tableWidget.setCellWidget(row, column, widget)
-                if not isImport: self.tableWidget.cellWidget(row, column).setBackground(QColor("light green"))  # Mark empty added row with green
 
             else:
                 if row_data and column < len(row_data):
@@ -198,7 +197,7 @@ class InventoryScreen(QWidget, Ui_InventoryWidget):
                 if self.tableWidget.item(row, HeaderIndex.QNT_SOLD.value).text() == "":
                     self.tableWidget.item(row, HeaderIndex.QNT_SOLD.value).setText("0")
                 available = int(self.tableWidget.item(row, HeaderIndex.QUANTITY.value).text()) > 0
-                self.tableWidget.item(row, HeaderIndex.AVAILABLE.value).setText(str(available))
+                #self.tableWidget.item(row, HeaderIndex.AVAILABLE.value).setText(str(available))
 
             DatabaseManager.export_table(self.tableWidget)
             self.reset_table()
