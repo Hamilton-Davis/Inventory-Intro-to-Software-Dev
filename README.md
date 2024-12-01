@@ -43,7 +43,7 @@ Overview of Software:
       
         1. test_login.py
         
-          This test checks the correct behavior of login validation, password visibility toggling, and security question handling. It ensures that login success <br/> and failure trigger appropriate responses, and that the password field's visibility can be toggled on or off. Additionally, the tests validate the                  handling of a security question, including the display of the hint and the validation of the answer. Mock objects, like QMessageBox, are used to                    simulate user interactions and prevent actual pop-ups during testing
+          This test checks the correct behavior of login validation, password visibility toggling, and security question handling. It ensures that login success <br /> and failure trigger appropriate responses, and that the password field's visibility can be toggled on or off. Additionally, the tests validate the                  handling of a security question, including the display of the hint and the validation of the answer. Mock objects, like QMessageBox, are used to                    simulate user interactions and prevent actual pop-ups during testing
           
         2. test_inventory.py
         
