@@ -21,6 +21,13 @@ Overview of Software:
         Update username/password
         Reset login to defaults
 
+    Sales
+
+        Log daily quantity sold
+        Chart item sales by gross and quantity
+        Chart gross sales by category
+        Select timespan for sales data
+
   To Install Dependencies:
     
     pip install PySide6
@@ -33,8 +40,6 @@ Overview of Software:
     Compile and run main.py from [project root]/Inventory/main.py
     To generate test data, compile and run dballocation.py from [project root]/Inventory/main.py
         - Note that running this file more than once will create duplicate items in each genrated table
-
-    Executable file to come with final version
 
     
   Test Cases:
@@ -75,4 +80,4 @@ Overview of Software:
           toggling the checkbox correctly changes the display mode. Additionally, it tests resetting the credentials to default, updating the security question, 
           and the behavior of the home button. Mocking is used to simulate user interactions and avoid actual UI popups.
 
-      Run them in an ide (like PyCharm) to see how they work
+      Run them in an IDE (like PyCharm) to see how they work
