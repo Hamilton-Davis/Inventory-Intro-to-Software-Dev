@@ -2,6 +2,8 @@
 
 Developed by Students at University of Colorado, Colorado Springs.
 
+Available through GitHub at: https://github.com/Hamilton-Davis/Inventory-Intro-to-Software-Dev
+
 Overview of Software: 
 
   A local inventory management system to be used by small businesses as an alternative to paid management systems used by large corporations. 
