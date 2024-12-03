@@ -43,6 +43,11 @@ Overview of Software:
     To generate test data, compile and run dballocation.py from [project root]/Inventory/main.py
         - Note that running this file more than once will create duplicate items in each genrated table
 
+    Once the program is up and running, the username and password are set to a default. (This can be changed as needed once into the program fully.)
+    
+      Username: Admin
+      Password: Password 
+
     
   Test Cases:
 
